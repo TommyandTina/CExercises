@@ -20,12 +20,12 @@ int search_index_to_get_info_fromstr(char find_this[MAX_NAME_LENGTH], char array
 }
 
 //function này sai
-int search_index_to_get_info_fromint(int find_this, int array[]){
+int search_index_to_get_info_fromint(int find_this, int array[MAX_MEMBERS]){
     int index = -1;
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < MAX_MEMBERS; i++) {
         if (array[i] == find_this) {
             index = i;
-            break;
+            return index;
         }
     }
     return index;
@@ -40,7 +40,7 @@ int main(){
 
     int member_id[MAX_MEMBERS];
     char member_name[MAX_MEMBERS][MAX_NAME_LENGTH];
-    char member_citizen_ID[MAX_MEMBERS][MAX_NAME_LENGTH];
+    int member_citizen_ID[MAX_MEMBERS];
     int member_dayOfBirth[MAX_MEMBERS];
     char member_email[MAX_MEMBERS][MAX_NAME_LENGTH];
     char member_gender[MAX_MEMBERS][MAX_NAME_LENGTH];
@@ -63,6 +63,7 @@ enum options {
     while(1) {
         printf("Enter an option number (1 - START, 2 - MEMBER_MANAGEMENT, 3 - BOOK_MANAGEMENT, 4 - BORROW_BOOK, 5 - RETURN_BOOK, 6 - STATISTIC_ANALYSIS, 7 - EXIT): ");
         scanf(" %d", &input_option);
+        getchar();
         switch (input_option) {
             case MEMBER_MANAGEMENT:
             {
@@ -84,9 +85,9 @@ enum options {
 
 
                     printf("Enter member citizen ID: ");
-                    fgets(member_citizen_ID[number_of_current_member_index], MAX_NAME_LENGTH, stdin);
-                    member_citizen_ID[number_of_current_member_index][strlen(member_citizen_ID[number_of_current_member_index])-1] = '\0'; // bỏ \n
-
+                    scanf("%d", &member_citizen_ID[number_of_current_member_index]);
+                    getchar(); // Đọc ký tự xuống dàn sau khi nhap so
+                    
                     // printf("Enter member day of birth: ");
                     // scanf("%d", &member_dayOfBirth[number_of_current_member_index]);
                     // getchar(); // Đọc ký tự xuống dòng sau khi nhập số
@@ -122,7 +123,7 @@ enum options {
                     int index = search_index_to_get_info_fromstr(member_name_to_search, member_name,MAX_NAME_LENGTH);
                     if(index != -1)
                     {
-                        printf("Member info:\nName: %s\nCitizen ID: %s\n", member_name[index], member_citizen_ID[index]);
+                        printf("Member info:\nName: %s\nCitizen ID: %d\n", member_name[index], member_citizen_ID[index]);
                     }
                     else
                     {
@@ -204,19 +205,21 @@ enum options {
                 {
                     printf("Enter citizen_id to search: ");
                     int citizen_id;
-                    scanf(" %d", &citizen_id);
+                    scanf("%d", &citizen_id);
+                    getchar();
                     printf("ID: %d\n", citizen_id);
-                    int index = search_index_to_get_info_fromint(citizen_id, member_citizen_ID);
-                    if (index != -1)
+                    int new_index = search_index_to_get_info_fromint(citizen_id, member_citizen_ID);
+                    printf("Index: %d\n", new_index);
+                    if (new_index != -1)
                     {
-                        printf("Member id: %s\n", member_id[index]);
-                        printf("Member name: %s\n", member_name[index]);
-                        printf("Member citizen_id: %d\n", member_citizen_ID[index]);
-                        printf("Member dayOfBirth: %d\n", member_dayOfBirth[index]);
-                        printf("Member email: %s\n", member_email[index]);
-                        printf("Member gender: %c\n", member_gender[index]);
-                        printf("Member register_date: %d\n", member_register_date[index]);
-                        printf("Member expired_date: %d\n", member_expired_date[index]);
+                        printf("Member id: %d\n", member_id[new_index]);
+                        printf("Member name: %s\n", member_name[new_index]);
+                        printf("Member citizen_id: %d\n", member_citizen_ID[new_index]);
+                        // printf("Member dayOfBirth: %d\n", member_dayOfBirth[index]);
+                        // printf("Member email: %s\n", member_email[index]);
+                        // printf("Member gender: %c\n", member_gender[index]);
+                        // printf("Member register_date: %d\n", member_register_date[index]);
+                        // printf("Member expired_date: %d\n", member_expired_date[index]);
                     }
 
                 }
