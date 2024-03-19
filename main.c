@@ -71,6 +71,8 @@ int main(){
     char member_gender[MAX_MEMBERS][MAX_NAME_LENGTH];
     int member_register_date[MAX_MEMBERS];
     int member_expired_date[MAX_MEMBERS];
+    int* member_borrowed_ISBN[MAX_MEMBERS];
+    int member_borrowed_book[MAX_MEMBERS];
 
     int book_ISBN[MAX_BOOK];
     char book_name[MAX_BOOK][MAX_NAME_LENGTH];
@@ -257,29 +259,59 @@ enum options {
                         printf("Member id: %d\n", member_id[new_index]);
                         printf("Member name: %s\n", member_name[new_index]);
                         printf("Member citizen_id: %d\n", member_citizen_ID[new_index]);
-                        // printf("Member dayOfBirth: %d\n", member_dayOfBirth[index]);
-                        // printf("Member email: %s\n", member_email[index]);
-                        // printf("Member gender: %c\n", member_gender[index]);
-                        // printf("Member register_date: %d\n", member_register_date[index]);
-                        // printf("Member expired_date: %d\n", member_expired_date[index]);
+                        printf("Member dayOfBirth: %d\n", member_dayOfBirth[new_index]);
+                        printf("Member email: %s\n", member_email[new_index]);
+                        printf("Member gender: %c\n", member_gender[new_index]);
+                        printf("Member register_date: %d\n", member_register_date[new_index]);
+                        printf("Member borrowed_ISBN:\n");
+                        for (int j = 0; j < member_borrowed_book[new_index]; j++) {
+                            printf("%d\n", member_borrowed_ISBN[new_index][j]);
+                        }
                     }
-
                 }
-//                 else if (option == 6)
-//                 {
-//                     printf("Enter member name to search: ");
-//                     char name_to_search[100];
-//                     scanf(" %99[^\n]", name_to_search);
-//                     int index = search_index_to_get_info_fromstr(member_name, name_to_search);
-//                     if (index != -1)
-//                     {
-// //xuất sách làm sau
-//                     }
-//                     else
-//                     {
-//                         printf("Member not found\n");
-//                     }
-//             }
+                else if (option == 6)
+                {
+                    printf("Enter member name to search: ");
+                    char name_to_search[MAX_NAME_LENGTH];
+                    fgets(name_to_search, MAX_NAME_LENGTH, stdin);
+                    name_to_search[strcspn(name_to_search, "\n")] = '\0'; // bỏ \n
+                    int index = search_index_to_get_info_fromstr(name_to_search, member_name,MAX_NAME_LENGTH);
+                    if (index != -1)
+                    {
+                        printf("Member info:\nName: %s\nCitizen ID: %d\nDay of Birth: %d\nEmail: %s\nGender: %s\nRegister Date: %d\n", member_name[index], member_citizen_ID[index], member_dayOfBirth[index], member_email[index], member_gender[index], member_register_date[index]);
+                        printf("Books borrowed:\n");
+                        for (int j = 0; j < member_borrowed_book[index]; j++) {
+                            printf("%d\n", member_borrowed_ISBN[index][j]);
+                        }
+                        printf("Do you want to delete this member (y/n): ");
+                        char delete_member;
+                        scanf(" %c", &delete_member);
+                        getchar();
+                        if (delete_member == 'y' || delete_member == 'Y') {
+                            // Move elements to the right of the deleted element
+                            free(member_borrowed_ISBN[index]);
+                            for (int i = index; i < number_of_current_member_index - 1; i++) {
+                                strcpy(member_name[i], member_name[i + 1]);
+                                member_citizen_ID[i] = member_citizen_ID[i + 1];
+                                member_dayOfBirth[i] = member_dayOfBirth[i + 1];
+                                strcpy(member_email[i], member_email[i + 1]);
+                                strcpy(member_gender[i], member_gender[i + 1]);
+                                member_register_date[i] = member_register_date[i + 1];
+                                member_borrowed_book[i] = member_borrowed_book[i + 1];
+                                memmove(&member_borrowed_ISBN[i], &member_borrowed_ISBN[i + 1], sizeof(member_borrowed_ISBN[i]) * member_borrowed_book[i]);
+                            }
+                            number_of_current_member_index--;
+                            printf("Member deleted\n");
+                        }
+                        else {
+                            printf("Member not deleted\n");
+                        }
+                    }
+                    else
+                    {
+                        printf("Member not found\n");
+                    }
+                }
         }                
                 break;
             case BOOK_MANAGEMENT:
