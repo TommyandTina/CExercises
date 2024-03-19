@@ -9,6 +9,31 @@
 #define MAX_TICKET 100
 #define MAX_NAME_LENGTH 100  // Độ dài tên tối đa
 
+//Hàm countDays để tính số ngày 
+int countDays(int day, int month, int year) {
+    int monthDays[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+    // Tính số ngày trong các năm trước năm cho trước
+    int totalDays = year * 365;
+
+    // Thêm số ngày của các tháng trước tháng cho trước
+    for (int i = 0; i < month - 1; i++) {
+        totalDays += monthDays[i];
+    }
+
+    // Thêm số ngày từ đầu tháng đến ngày cho trước
+    totalDays += day;
+
+    // Thêm số ngày nhuận
+    totalDays += year / 4 - year / 100 + year / 400;
+
+    // Trừ đi số ngày nhuận nếu năm cho trước là năm nhuận và tháng nhỏ hơn 3
+    if (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0) && month < 3) {
+        totalDays--;
+    }
+
+    return totalDays;
+}
 
 int search_index_to_get_info_fromstr(char find_this[MAX_NAME_LENGTH], char array[][MAX_NAME_LENGTH], int size) {
     for (int i = 0; i < size; i++) {
@@ -19,7 +44,7 @@ int search_index_to_get_info_fromstr(char find_this[MAX_NAME_LENGTH], char array
     return -1;
 }
 
-//function này sai
+
 int search_index_to_get_info_fromint(int find_this, int array[MAX_MEMBERS]){
     int index = -1;
     for (int i = 0; i < MAX_MEMBERS; i++) {
@@ -36,7 +61,7 @@ int main(){
     int number_of_current_book_index = 0;
     int number_of_current_ticket_index = 0;
 
-
+    int day, month, year;
 
     int member_id[MAX_MEMBERS];
     char member_name[MAX_MEMBERS][MAX_NAME_LENGTH];
@@ -47,7 +72,14 @@ int main(){
     int member_register_date[MAX_MEMBERS];
     int member_expired_date[MAX_MEMBERS];
 
-
+    int book_ISBN[MAX_BOOK];
+    char book_name[MAX_BOOK][MAX_NAME_LENGTH];
+    char book_author[MAX_BOOK][MAX_NAME_LENGTH];
+    char book_publishing_company[MAX_BOOK][MAX_NAME_LENGTH];
+    int book_publishing_year[MAX_BOOK];
+    char book_type[MAX_BOOK][MAX_NAME_LENGTH];
+    int book_price[MAX_BOOK];
+    int book_amount[MAX_BOOK];
 
 enum options {
     START = 1,
@@ -69,7 +101,7 @@ enum options {
             {
                 char member_name_to_search[MAX_NAME_LENGTH];  // Khai báo biến
                 int option;
-                printf("Do you want to add, search or change a member (1-add, 2-search, 3-change, 4-watch members list,5-search by citizen_id,6-search book borrowed by name) ?");
+                printf("Do you want to add, search or change a member (1-add, 2-search, 3-change, 4-watch members list,5-search by citizen_id,6-search book borrowed by name, 7-delete) ?");
                 scanf(" %d", &option);
                 getchar();
 
@@ -87,31 +119,33 @@ enum options {
                     printf("Enter member citizen ID: ");
                     scanf("%d", &member_citizen_ID[number_of_current_member_index]);
                     getchar(); // Đọc ký tự xuống dàn sau khi nhap so
-                    
-                    // printf("Enter member day of birth: ");
-                    // scanf("%d", &member_dayOfBirth[number_of_current_member_index]);
-                    // getchar(); // Đọc ký tự xuống dòng sau khi nhập số
-                    
 
-                    // printf("Enter member email: ");
-                    // fgets(member_email[number_of_current_member_index], MAX_NAME_LENGTH, stdin);
-                    // member_email[number_of_current_member_index][strcspn(member_email[number_of_current_member_index], "\n")] = '\0'; // bỏ \n
+                    printf("Enter day of birth (dd/mm/yyyy): ");
+                    scanf("%d/%d/%d", &day, &month, &year);
+                    getchar();
+                    member_dayOfBirth[number_of_current_member_index] = countDays(day, month, year);                    
                     
 
-                    // printf("Enter member gender: ");
-                    // fgets(member_gender[number_of_current_member_index], MAX_NAME_LENGTH, stdin);
-                    // member_gender[number_of_current_member_index][strcspn(member_gender[number_of_current_member_index], "\n")] = '\0'; // bỏ \n
-
-                    // printf("Enter member register date: ");
-                    // scanf("%d", &member_register_date[number_of_current_member_index]);
-                    // getchar(); // Đọc ký tự xuống dòng sau khi nhập số
+                    printf("Enter member email: ");
+                    fgets(member_email[number_of_current_member_index], MAX_NAME_LENGTH, stdin);
+                    member_email[number_of_current_member_index][strcspn(member_email[number_of_current_member_index], "\n")] = '\0'; // bỏ \n
                     
 
-                    // // Tính ngày hết hạn (48 tháng sau ngày lập thẻ)
-                    // member_expired_date[number_of_current_member_index] = member_register_date[number_of_current_member_index] + 48;                        
+                    printf("Enter member gender: ");
+                    fgets(member_gender[number_of_current_member_index], MAX_NAME_LENGTH, stdin);
+                    member_gender[number_of_current_member_index][strcspn(member_gender[number_of_current_member_index], "\n")] = '\0'; // bỏ \n
+
+                    printf("Enter register date (dd/mm/yyyy): ");
+                    scanf("%d/%d/%d", &day, &month, &year);
+                    getchar();
+                    member_register_date[number_of_current_member_index] = countDays(day, month, year);
+                    
+
+                    // Tính ngày hết hạn (48 tháng sau ngày lập thẻ)
+                    member_expired_date[number_of_current_member_index] = member_register_date[number_of_current_member_index] + 48;                        
                     number_of_current_member_index++;
                 }
-                else if(option == 2) //bug ???
+                else if(option == 2) 
                 {
                     // getchar(); // Đọc ký tự xuống dòng sau khi nhập số
                     printf("Enter member name to search: ");
@@ -131,65 +165,73 @@ enum options {
                     }
 
                 }
-                // else if(option == 3)
-                // {
-                //     printf("Enter member name to change: ");
-                //     fflush(stdout);
-                //     member_name_to_search[0] = '\0';  // Chạy đến ký tự \0 đầu tiên của chuỗi
-                //     fgets(member_name_to_search, 100, stdin);  // Nhập tên thành viên
-                //     member_name_to_search[strcspn(member_name_to_search, "\n")] = '\0';  // Loại bỏ ký tự \n
-
-                //     int index = search_index_to_get_info_fromstr(member_name, member_name_to_search);
-                //     if(index != -1)
-                //     {
-                //         printf("Which info do you want to change? (1-member_id, 2-member_name, 3-member_citizen_ID, 4-member_dayOfBirth, 5-member_email, 6-member_gender, 7-member_register_date, 8-member_expired_date)");
-                //         int change_option;
-                //         scanf(" %d", &change_option);
-                //         switch(change_option) {
-                //             case 1:
-                //                 printf("Enter new member_id: ");
-                //                 fflush(stdout);
-                //                 scanf("%d", &member_id[index]);
-                //                 break;
-                //             case 2:
-                //                 printf("Enter new member_name: ");
-                //                 scanf(" %99[^\n]", member_name[index]);
-                //                 break;
-                //             case 3:
-                //                 printf("Enter new member_citizen_ID: ");
-                //                 scanf(" %99[^\n]", member_citizen_ID[index]);
-                //                 break;
-                //             case 4:
-                //                 int day, month, year;
-                //                 printf("Enter new day of birth (dd/mm/yyyy): ");
-                //                 scanf("%d/%d/%d", &day, &month, &year);
-                //                 member_dayOfBirth[index] = countDays(day, month, year);
-                //             case 5:
-                //                 printf("Enter new email: ");
-                //                 scanf(" %99[^\n]", member_email[index]);
-                //                 break;
-                //             case 6:
-                //                 printf("Enter new gender (M/F): ");
-                //                 scanf(" %c", &member_gender[index]);
-                //                 break;
-                //             case 7:
-                //                 printf("Enter new register date (dd/mm/yyyy): ");
-                //                 scanf("%d/%d/%d", &day, &month, &year);
-                //                 member_register_date[index] = countDays(day, month, year);
-                //             case 8:
-                //                 printf("Enter new expired date (dd/mm/yyyy): ");
-                //                 scanf("%d/%d/%d", &day, &month, &year);
-                //                 member_expired_date[index] = countDays(day, month, year);
-                //                 break;
-                //             default:
-                //                 printf("Invalid option\n");
-                //         }
-                //     }
-                //     else
-                //     {
-                //         printf("Member not found\n");
-                //     }
-                // }
+                else if(option == 3)
+                {
+                    printf("Enter member name to change: ");
+                    // fflush(stdout);
+                    // member_name_to_search[0] = '\0';  // Chạy đến ký tự \0 đầu tiên của chuỗi
+                    fgets(member_name_to_search, MAX_NAME_LENGTH, stdin);  // Nhập tên thành viên
+                    member_name_to_search[strlen(member_name_to_search)-1] = '\0';  // Loại bỏ ký tự \n
+                
+                    int index = search_index_to_get_info_fromstr(member_name_to_search, member_name,MAX_NAME_LENGTH);
+                    if(index != -1)
+                    {
+                        printf("Which info do you want to change? (1-member_id, 2-member_name, 3-member_citizen_ID, 4-member_dayOfBirth, 5-member_email, 6-member_gender, 7-member_register_date, 8-member_expired_date)");
+                        int change_option;
+                        scanf(" %d", &change_option);
+                        getchar();
+                        switch(change_option) {
+                            case 1:
+                                printf("Enter new member_id: ");
+                                // fflush(stdout);
+                                scanf("%d", &member_id[index]);
+                                getchar();
+                                break;
+                            case 2:
+                                printf("Enter new member_name: ");
+                                fgets(member_name[index], MAX_NAME_LENGTH, stdin);  // Nhập tên thành viên
+                                member_name[index][strlen(member_name[index])-1] = '\0';  // Loại bỏ ký tự \n                                
+                                break;
+                            case 3:
+                                printf("Enter new member_citizen_ID: ");
+                                scanf("%d", &member_citizen_ID[index]);
+                                getchar();
+                                break;
+                            case 4:
+                                printf("Enter new day of birth (dd/mm/yyyy): ");
+                                scanf("%d/%d/%d", &day, &month, &year);
+                                getchar();
+                                member_dayOfBirth[index] = countDays(day, month, year);
+                            case 5:
+                                printf("Enter new email: ");
+                                fgets(member_email[index], MAX_NAME_LENGTH, stdin);  // Nhập tên thành viên
+                                member_email[index][strlen(member_email[index])-1] = '\0';  // Loại bỏ ký tự \n 
+                                break;
+                            case 6:
+                                printf("Enter new gender: ");
+                                fgets(member_gender[index], MAX_NAME_LENGTH, stdin);  // Nhập tên thành viên
+                                member_gender[index][strlen(member_gender[index])-1] = '\0';  // Loại bỏ ký tự \n 
+                                break;
+                            case 7:
+                                printf("Enter new register date (dd/mm/yyyy): ");
+                                scanf("%d/%d/%d", &day, &month, &year);
+                                getchar();
+                                member_register_date[index] = countDays(day, month, year);
+                            case 8:
+                                printf("Enter new expired date (dd/mm/yyyy): ");
+                                scanf("%d/%d/%d", &day, &month, &year);
+                                getchar();
+                                member_expired_date[index] = countDays(day, month, year);
+                                break;
+                            default:
+                                printf("Invalid option\n");
+                        }
+                    }
+                    else
+                    {
+                        printf("Member not found\n");
+                    }
+                }
                 else if (option == 4)
                 {
                     printf("Option 4: Current members:\n");
@@ -241,7 +283,231 @@ enum options {
         }                
                 break;
             case BOOK_MANAGEMENT:
-                printf("Book management selected\n");
+        while(1) {
+            printf("Enter an option number for book management (1 - get_book_list, 2 - add_book, 3 - change_info, 4 - delete_book, 5 - search_book_from_ISBN, 6 - search_book_from_name, 7 - exit): ");
+            int input_option_book;
+            scanf(" %d", &input_option_book);
+            getchar();
+            
+            if(input_option_book == 1) {
+                for (int i = 0; i < number_of_current_book_index; i++) {
+                    printf("%s ", book_name[i]);
+                }
+                printf("\n");
+                
+            } else if (input_option_book == 5) {
+                printf("Enter book_ISBN to search: ");
+                int isbn;
+                scanf(" %d", &isbn);
+                getchar();
+
+                int index = -1;
+                for (int i = 0; i < number_of_current_book_index; i++) {
+                    if (book_ISBN[i] == isbn) {
+                        index = i;
+                        break;
+                    }
+                }
+
+                if (index != -1) {
+                    printf("Book ISBN: %d\n", book_ISBN[index]);
+                    printf("Book name: %s\n", book_name[index]);
+                    printf("Book author: %s\n", book_author[index]);
+                    printf("Book publishing company: %s\n", book_publishing_company[index]);
+                    printf("Book publishing year: %d\n", book_publishing_year[index]);
+                    printf("Book type: %s\n", book_type[index]);
+                    printf("Book price: %d\n", book_price[index]);
+                    printf("Book quantity: %d\n", book_amount[index]);
+                } else {
+                    printf("Book not found\n");
+                }
+            }
+            else if (input_option_book == 2) {
+                int index = number_of_current_book_index;
+                printf("Enter book_ISBN: ");
+                scanf(" %d", &book_ISBN[number_of_current_book_index]);
+                getchar();
+
+                printf("Enter book_name: ");
+                fgets(book_name[number_of_current_book_index], MAX_NAME_LENGTH, stdin);
+                book_name[number_of_current_book_index][strlen(book_name[number_of_current_book_index])-1] = '\0'; // bỏ \n
+
+                printf("Enter book_author: ");
+                fgets(book_author[number_of_current_book_index], MAX_NAME_LENGTH, stdin);
+                book_author[number_of_current_book_index][strlen(book_author[number_of_current_book_index])-1] = '\0'; // bỏ \n
+
+                printf("Enter book_publishing_company: ");
+                fgets(book_publishing_company[number_of_current_book_index], MAX_NAME_LENGTH, stdin);
+                book_publishing_company[number_of_current_book_index][strlen(book_publishing_company[number_of_current_book_index])-1] = '\0'; // bỏ \n
+
+                printf("Enter book_publishing_year: ");
+                scanf(" %d", &book_publishing_year[number_of_current_book_index]);
+                getchar();
+
+                printf("Enter book_type: ");
+                fgets(book_type[number_of_current_book_index], MAX_NAME_LENGTH, stdin);
+                book_type[number_of_current_book_index][strcspn(book_type[number_of_current_book_index], "\n")] = '\0'; // bỏ \n
+
+                printf("Enter book_price: ");
+                scanf(" %d", &book_price[number_of_current_book_index]);
+                getchar();
+
+                printf("Enter book_amount: ");
+                scanf(" %d", &book_amount[number_of_current_book_index]);
+                getchar();
+
+                number_of_current_book_index++;
+            }
+            else if (input_option_book == 3) {
+                char name_to_change[MAX_NAME_LENGTH];
+                printf("Enter book name to change info: ");
+                fgets(name_to_change, MAX_NAME_LENGTH, stdin);
+                name_to_change[strcspn(name_to_change, "\n")] = '\0'; // bỏ \n
+
+                int index = -1;
+                for(int i = 0; i < number_of_current_book_index; i++){
+                    if(strcmp(name_to_change, book_name[i]) == 0){
+                        index = i;
+                        break;
+                    }
+                }
+
+                if(index == -1){
+                    printf("Book not found\n");
+                }
+                else{
+                    printf("Enter info to change (book_ISBN, book_author, book_publishing_company, book_publishing_year, book_type, book_price, book_amount, book_name): ");
+                    char info_to_change[MAX_NAME_LENGTH];
+                    fgets(info_to_change, MAX_NAME_LENGTH, stdin);
+                    info_to_change[strcspn(info_to_change, "\n")] = '\0'; // bỏ \n
+
+                    if(strcmp(info_to_change, "book_ISBN") == 0){
+                        printf("Enter new book_ISBN: ");
+                        scanf(" %d", &book_ISBN[index]);
+                        getchar();
+                    }
+                    else if(strcmp(info_to_change, "book_author") == 0){
+                        printf("Enter new book_author: ");
+                        fgets(book_author[index], MAX_NAME_LENGTH, stdin);
+                        book_author[index][strlen(book_author[index])-1] = '\0'; // bỏ \n
+                    }
+                    else if(strcmp(info_to_change, "book_publishing_company") == 0){
+                        printf("Enter new book_publishing_company: ");
+                        fgets(book_publishing_company[index], MAX_NAME_LENGTH, stdin);
+                        book_publishing_company[index][strlen(book_publishing_company[index])-1] = '\0'; // bỏ \n
+                    }
+                    else if(strcmp(info_to_change, "book_publishing_year") == 0){
+                        printf("Enter new book_publishing_year: ");
+                        scanf(" %d", &book_publishing_year[index]);
+                        getchar();
+                    }
+                    else if(strcmp(info_to_change, "book_type") == 0){
+                        printf("Enter new book_type: ");
+                        fgets(book_type[index], MAX_NAME_LENGTH, stdin);
+                        book_type[index][strcspn(book_type[index], "\n")] = '\0'; // bỏ \n
+                    }
+                    else if(strcmp(info_to_change, "book_price") == 0){
+                        printf("Enter new book_price: ");
+                        scanf(" %d", &book_price[index]);
+                        getchar();
+                    }
+                    else if(strcmp(info_to_change, "book_amount") == 0){
+                        printf("Enter new book_amount: ");
+                        scanf(" %d", &book_amount[index]);
+                        getchar();
+                    }
+                    else if (strcmp(info_to_change, "book_name") == 0) { // Đổi tên sách
+                    printf("Enter new book_name: ");
+                    fgets(book_name[index], MAX_NAME_LENGTH, stdin);
+                    book_name[index][strlen(book_name[index]) - 1] = '\0'; // bỏ \n
+                    }
+                    else{
+                        printf("Invalid info to change\n");
+                    }
+                }
+
+            }
+            else if (input_option_book == 4) {
+                printf("Enter book_ISBN to delete: ");
+                int isbn;
+                scanf(" %d", &isbn);
+                getchar();
+
+                int index = -1;
+                for (int i = 0; i < number_of_current_book_index; i++) {
+                    if (book_ISBN[i] == isbn) {
+                        index = i;
+                        break;
+                    }
+                }
+
+                if (index != -1) {
+                    printf("Book ISBN: %d\n", book_ISBN[index]);
+                    printf("Book name: %s\n", book_name[index]);
+                    printf("Book author: %s\n", book_author[index]);
+                    printf("Book publishing company: %s\n", book_publishing_company[index]);
+                    printf("Book publishing year: %d\n", book_publishing_year[index]);
+                    printf("Book type: %s\n", book_type[index]);
+                    printf("Book price: %d\n", book_price[index]);
+                    printf("Book quantity: %d\n", book_amount[index]);
+
+                    char answer[3];
+                    printf("Do you want to delete this book (y/n): ");
+                    fgets(answer, sizeof(answer), stdin);
+                    answer[strcspn(answer, "\n")] = '\0'; // bỏ \n
+
+                    if (strcmp(answer, "y") == 0 || strcmp(answer, "Y") == 0) {
+                        // Di chuyển các phần tử đến phần tử được xóa sang phải
+                        for (int i = index; i < number_of_current_book_index - 1; i++) {
+                            book_ISBN[i] = book_ISBN[i + 1];
+                            strcpy(book_name[i], book_name[i + 1]);
+                            strcpy(book_author[i], book_author[i + 1]);
+                            strcpy(book_publishing_company[i], book_publishing_company[i + 1]);
+                            book_publishing_year[i] = book_publishing_year[i + 1];
+                            strcpy(book_type[i], book_type[i + 1]);
+                            book_price[i] = book_price[i + 1];
+                            book_amount[i] = book_amount[i + 1];
+                        }
+                        number_of_current_book_index--;
+                        printf("Book deleted\n");
+                    } else {
+                        printf("Deletion cancelled\n");
+                    }
+                } else {
+                    printf("Book not found\n");
+                }
+            }
+            else if (input_option_book == 6) {
+                char book_name_to_search[MAX_NAME_LENGTH];
+                printf("Enter book name to search: ");
+                fgets(book_name_to_search, sizeof(book_name_to_search), stdin);
+                book_name_to_search[strcspn(book_name_to_search, "\n")] = '\0'; // bỏ \n
+
+                int index = search_index_to_get_info_fromstr(book_name_to_search, book_name, number_of_current_book_index);
+
+                if(index != -1) {
+                    printf("Book info:\n");
+                    printf("Book ISBN: %d\n", book_ISBN[index]);
+                    printf("Book name: %s\n", book_name[index]);
+                    printf("Book author: %s\n", book_author[index]);
+                    printf("Book publishing company: %s\n", book_publishing_company[index]);
+                    printf("Book publishing year: %d\n", book_publishing_year[index]);
+                    printf("Book type: %s\n", book_type[index]);
+                    printf("Book price: %d\n", book_price[index]);
+                    printf("Book quantity: %d\n", book_amount[index]);
+                }
+                else {
+                    printf("Book not found\n");
+                }
+            }
+            else if (input_option_book == 7) {
+                printf("exit\n");
+                break;
+            }
+            else {
+                printf("Invalid option\n");
+            }
+        }
                 break;
             case BORROW_BOOK:
                 printf("Borrow book selected\n");
