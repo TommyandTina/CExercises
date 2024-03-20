@@ -35,6 +35,46 @@ int countDays(int day, int month, int year) {
     return totalDays;
 }
 
+
+void printDate_from_countDays(int totalDays) {
+    int monthDays[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+    // Xác định năm
+    int year = 0; // Năm bắt đầu từ 1970, epoch time
+
+    // Tính số ngày nhuận từ năm 1970 đến năm hiện tại
+    while (totalDays >= 365) {
+        if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) {
+            // Năm nhuận
+            if (totalDays >= 366) {
+                totalDays -= 366;
+                (year)++;
+            } else {
+                break;
+            }
+        } else {
+            // Năm không nhuận
+            totalDays -= 365;
+            (year)++;
+        }
+    }
+
+    // Cập nhật số ngày của tháng 2 nếu là năm nhuận
+    if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) {
+        monthDays[1] = 29;
+    }
+
+    // Xác định tháng và ngày trong tháng cho năm đó
+    int month = 0;
+    while (totalDays >= monthDays[month]) {
+        totalDays -= monthDays[month];
+        (month)++;
+    }
+    month += 1; // Tháng bắt đầu từ 1
+    int day = totalDays + 1; // Ngày bắt đầu từ 1
+       printf("%02d/%02d/%04d\n", day, month, year);
+}
+
 int search_index_to_get_info_fromstr(char find_this[MAX_NAME_LENGTH], char array[][MAX_NAME_LENGTH], int size) {
     for (int i = 0; i < size; i++) {
         if (strcmp(array[i], find_this) == 0) {
@@ -84,6 +124,7 @@ int main(){
     int book_price[MAX_BOOK];
     int book_amount[MAX_BOOK];
 
+    int lib_ticket_id[MAX_TICKET];
     int lib_ticket_member_id[MAX_TICKET];
     int lib_ticket_borrow_date[MAX_TICKET];
     int lib_ticket_return_date_expected[MAX_TICKET];
@@ -269,10 +310,12 @@ enum options {
                         printf("Member id: %d\n", member_id[new_index]);
                         printf("Member name: %s\n", member_name[new_index]);
                         printf("Member citizen_id: %d\n", member_citizen_ID[new_index]);
-                        printf("Member dayOfBirth: %d\n", member_dayOfBirth[new_index]);
+                        printf("Member dayOfBirth:");
+                        printDate_from_countDays(member_dayOfBirth[new_index]);
                         printf("Member email: %s\n", member_email[new_index]);
-                        printf("Member gender: %c\n", member_gender[new_index]);
-                        printf("Member register_date: %d\n", member_register_date[new_index]);
+                        printf("Member gender: %s\n", member_gender[new_index]);
+                        printf("Member register_date:");
+                        printDate_from_countDays(member_register_date[new_index]);
                         printf("Member borrowed_ISBN:\n");
                         for (int j = 0; j < member_borrowed_book[new_index]; j++) {
                             printf("%d\n", member_borrowed_ISBN[new_index][j]);
@@ -288,7 +331,7 @@ enum options {
                     int index = search_index_to_get_info_fromstr(name_to_search, member_name,MAX_NAME_LENGTH);
                     if (index != -1)
                     {
-                        printf("Member info:\nName: %s\nCitizen ID: %d\nDay of Birth: %d\nEmail: %s\nGender: %s\nRegister Date: %d\n", member_name[index], member_citizen_ID[index], member_dayOfBirth[index], member_email[index], member_gender[index], member_register_date[index]);
+                        printf("Member info:\nName: %s\nCitizen ID: %d\nEmail: %s\nGender: %s\n", member_name[index], member_citizen_ID[index], member_email[index], member_gender[index]);
                         printf("Books borrowed:\n");
                         for (int j = 0; j < member_borrowed_book[index]; j++) {
                             printf("%d\n", member_borrowed_ISBN[index][j]);
@@ -553,16 +596,16 @@ enum options {
                 break;
             case BORROW_BOOK:
             //case này chưa test
-    printf("Book borrow selected\n");
-    printf("Enter member name to search: ");
-    char input_name[MAX_NAME_LENGTH];
-    fgets(input_name, MAX_NAME_LENGTH, stdin);
-    input_name[strlen(input_name)-1] = '\0';
-    int index = search_index_to_get_info_fromstr(input_name, member_name,MAX_NAME_LENGTH);
+                printf("Book borrow selected\n");
+                printf("Enter member name to search: ");
+                char input_name[MAX_NAME_LENGTH];
+                fgets(input_name, MAX_NAME_LENGTH, stdin);
+                input_name[strlen(input_name)-1] = '\0';
+                int index = search_index_to_get_info_fromstr(input_name, member_name,MAX_NAME_LENGTH);
 
     if (index != -1) {
         printf("Member found\n");
-        printf("Member ID: %d\n", member_citizen_ID[index]);
+        printf("Member ID: %d\n", member_id[index]);
         printf("Member name: %s\n", member_name[index]);
         printf("Books borrowed:\n");
         for (int i = 0; i < member_borrowed_book[index]; i++) {
@@ -576,6 +619,18 @@ enum options {
 
         if (book_index != -1) {
             printf("Book found\n");
+            printf("Enter day of borrow (dd): ");
+            int day;
+            scanf("%d", &day);
+            getchar();
+            printf("Enter month of borrow (mm): ");
+            int month;
+            scanf("%d", &month);
+            getchar();
+            printf("Enter year of borrow (yyyy): ");
+            int year;
+            scanf("%d", &year);
+            getchar();
             if (book_amount[book_index] > 0) {
                 // Tăng số lượt mượn, cập nhật thông tin của member
                 member_borrowed_book[index]++;
@@ -588,9 +643,10 @@ enum options {
                 // Giảm số lượng sách
                 book_amount[book_index]--;
                 // Lưu thông tin về phiếu mượn
-                lib_ticket_member_id[number_of_current_ticket_index] = member_citizen_ID[index];
-                // lib_ticket_borrow_date[number_of_current_ticket_index] = countDays(day, month, year);
-                // lib_ticket_return_date_expected[number_of_current_ticket_index] = countDays(day, month, year) + 7;
+                lib_ticket_id[number_of_current_ticket_index] = number_of_current_ticket_index;
+                lib_ticket_member_id[number_of_current_ticket_index] = member_id[index];
+                lib_ticket_borrow_date[number_of_current_ticket_index] = countDays(day, month, year);
+                lib_ticket_return_date_expected[number_of_current_ticket_index] = countDays(day, month, year) + 7;
                 lib_ticket_return_date_real[number_of_current_ticket_index] = 0;
                 if(lib_ticket_borrowed_book[number_of_current_ticket_index] - 1 == 0) {
                     lib_ticket_ISBN[number_of_current_ticket_index] = (int*)malloc(MAX_BOOK * sizeof(int));
@@ -621,10 +677,13 @@ enum options {
 
                 //in ra thông tin ticket
                 printf("Information of borrow ticket:\n");
+                printf("Ticket ID: %d\n", lib_ticket_id[number_of_current_ticket_index] );
                 printf("Member ID: %d\n", lib_ticket_member_id[number_of_current_ticket_index]);
-                printf("Borrow date: %d\n", lib_ticket_borrow_date[number_of_current_ticket_index]);
-                printf("Expected return date: %d\n", lib_ticket_return_date_expected[number_of_current_ticket_index]);
-                printf("Return date (real): %d\n", lib_ticket_return_date_real[number_of_current_ticket_index]);
+                printf("Borrow date:");
+                printDate_from_countDays(lib_ticket_borrow_date[number_of_current_ticket_index]);
+                printf("Expected return date:");
+                printDate_from_countDays(lib_ticket_return_date_expected[number_of_current_ticket_index]);
+                printf("Return date (real): Unknown\n");
                 printf("Book(s) borrowed:\n");
                 for (int i = 0; i < lib_ticket_borrowed_book[number_of_current_ticket_index]; i++) {
                     printf("%d\n", lib_ticket_ISBN[number_of_current_ticket_index][i]);
@@ -642,7 +701,99 @@ enum options {
 
                 break;
             case RETURN_BOOK:
+            //number_of_current_ticket_index is the ticket ID
+                int ticket_id;
+                printf("Existing tickets:\n");
+                for (int i = 0; i < number_of_current_ticket_index; i++) {
+                    printf("%d\n", lib_ticket_id[i]);
+                }
+                printf("Enter ticket ID to return book: ");
+                scanf("%d", &ticket_id);
+                getchar();
+                int ticket_index = ticket_id;
+                if (ticket_index != -1) {
+                    printf("Information of ticket %d:\n", ticket_id);
+                    printf("Ticket ID: %d\n", lib_ticket_id[ticket_index]);
+                    printf("Member ID: %d\n", lib_ticket_member_id[ticket_index]);
+                    printf("Borrow date:");
+                    printDate_from_countDays(lib_ticket_borrow_date[ticket_index]);
+                    printf("Expected return date:");
+                    printDate_from_countDays(lib_ticket_return_date_expected[ticket_index]);
+                    printf("Return date (real): Unknown\n");
+                    printf("Book(s) borrowed:\n");
+                    for (int i = 0; i < lib_ticket_borrowed_book[ticket_index]; i++) {
+                        printf("%d\n", lib_ticket_ISBN[ticket_index][i]);
+                    }
+                    char answer[2];
+                    printf("Do you want to continue returning book? (y/n): ");
+                    scanf(" %c", answer);
+                    getchar();
+                    if (strcmp(answer, "y") == 0 || strcmp(answer, "Y") == 0) {
+                        int penalty_fee = 0;
+                        printf("Enter book ISBN to return: ");
+                        int book_ISBN_search;
+                        scanf("%d", &book_ISBN_search);
+                        getchar();
+                        int book_index = search_index_to_get_info_fromint(book_ISBN_search,lib_ticket_ISBN[ticket_index]);
+                        if (book_index != -1) {
+                            printf("Book found, are you missing it? (y/n): ");
+                            scanf(" %c", answer);
+                            getchar();
+                            if (strcmp(answer, "y") == 0 || strcmp(answer, "Y") == 0) {
+                                member_borrowed_book[search_index_to_get_info_fromint(lib_ticket_member_id[ticket_index],member_id)]--;
+                                // book_amount[book_index]++;  // sai chỗ này cần sửa, book_index sai
+                                penalty_fee += book_price[book_index] * 2;
+                                printf("Penalty fee: %d\n", book_price[book_index] * 2);
+                                if(lib_ticket_borrowed_book[ticket_index] - 1 > 0) {
+                                    // for(int i = book_index + 1; i < lib_ticket_borrowed_book[ticket_index]; i++) {
+                                    //     lib_ticket_ISBN[ticket_index][i-1] = lib_ticket_ISBN[ticket_index][i];
+                                    // }
+                                    // lib_ticket_borrowed_book[ticket_index]--;
+                                    lib_ticket_ISBN[ticket_index][lib_ticket_borrowed_book[ticket_index]-1] = -1;
+                                    lib_ticket_borrowed_book[ticket_index]--;                                  
+                                } else {
+                                    lib_ticket_ISBN[ticket_index][lib_ticket_borrowed_book[ticket_index]-1] = -1;
+                                    lib_ticket_borrowed_book[ticket_index]--;  
+                                    // free(lib_ticket_ISBN[ticket_index]);
+                                }
+
+                                
+                            } else {
+                                printf("Enter current day, month, year: ");
+                                int day, month, year;
+                                scanf("%d %d %d", &day, &month, &year);
+                                getchar();
+                                int diff_day = countDays(day, month, year)- lib_ticket_return_date_expected[ticket_index];
+                                if ( diff_day > 0) {
+                                    penalty_fee += book_price[book_index] * diff_day;
+                                    printf("Penalty fee: %d\n", book_price[book_index] * diff_day);
+                                }
+                            }
+                                member_borrowed_book[search_index_to_get_info_fromint(lib_ticket_member_id[ticket_index],member_id)]--;
+                                book_amount[book_index]++;
+                                penalty_fee += book_price[book_index] * 2;
+                                printf("Penalty fee: %d\n", book_price[book_index] * 2);
+                                if(lib_ticket_borrowed_book[ticket_index] - 1 > 1) {
+                                lib_ticket_ISBN[ticket_index][lib_ticket_borrowed_book[ticket_index]-2] = lib_ticket_ISBN[ticket_index][lib_ticket_borrowed_book[ticket_index]-1];
+                                lib_ticket_ISBN[ticket_index][lib_ticket_borrowed_book[ticket_index]-1] = -1;
+                                lib_ticket_borrowed_book[ticket_index]--;                                  
+                                } else {
+                                    lib_ticket_ISBN[ticket_index][lib_ticket_borrowed_book[ticket_index]-1] = -1;
+                                    lib_ticket_borrowed_book[ticket_index]--;  
+                                    // free(lib_ticket_ISBN[ticket_index]);
+                                }
+                        } else {
+                            printf("Book not found\n");
+                        }
+                    } else {
+                        printf("Returning canceled\n");
+                    }
+                } else {
+                    printf("Ticket not found\n");
+                }
+                
                 printf("Return book selected\n");
+                
                 break;
             case STATISTIC_ANALYSIS:
                 printf("Statistic analysis selected\n");
@@ -658,3 +809,5 @@ enum options {
 
     return 0;
 }
+
+//thêm hàm chuyển countDays về dạng ngày tháng năm và in ra thông tin đó
