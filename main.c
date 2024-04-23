@@ -109,7 +109,7 @@ int main(){
     char member_gender[MAX_MEMBERS][MAX_NAME_LENGTH];
     int member_register_date[MAX_MEMBERS];
     int member_expired_date[MAX_MEMBERS];
-    int* member_borrowed_ISBN[MAX_MEMBERS];
+    int member_borrowed_ISBN[MAX_MEMBERS][MAX_BOOK];
     int member_borrowed_book[MAX_MEMBERS];
     memset(member_borrowed_book, 0, sizeof(member_borrowed_book));
 
@@ -127,7 +127,7 @@ int main(){
     int lib_ticket_borrow_date[MAX_TICKET];
     int lib_ticket_return_date_expected[MAX_TICKET];
     int lib_ticket_return_date_real[MAX_TICKET];
-    int* lib_ticket_ISBN[MAX_TICKET];
+    int lib_ticket_ISBN[MAX_TICKET][MAX_BOOK];
     int lib_ticket_borrowed_book[MAX_TICKET];
     memset(lib_ticket_borrowed_book, 0, sizeof(lib_ticket_borrowed_book));
     // int lib_ticket_book_alive[MAX_TICKET];
@@ -144,16 +144,34 @@ enum options {
 
     enum options input_option;
     while(1) {
-        printf("Enter an option number (1 - START, 2 - MEMBER_MANAGEMENT, 3 - BOOK_MANAGEMENT, 4 - BORROW_BOOK, 5 - RETURN_BOOK, 6 - STATISTIC_ANALYSIS, 7 - EXIT): ");
+        printf("Enter an option number (1 - START - DATA INIT (RESET DATA), 2 - MEMBER_MANAGEMENT, 3 - BOOK_MANAGEMENT, 4 - BORROW_BOOK, 5 - RETURN_BOOK, 6 - STATISTIC_ANALYSIS, 7 - EXIT): ");
         scanf(" %d", &input_option);
         getchar();
         switch (input_option) {
+            case START:
+            printf("Data init, choose this option again can lost all data\n");
+            // number_of_current_member_index = 0;
+            // for (int i = 0; i < MAX_MEMBERS; i++) {
+            //     member_id[i] = 0;
+            //     member_citizen_ID[i] = 0;
+            //     member_dayOfBirth[i] = 0;
+            //     member_register_date[i] = 0;
+            //     member_expired_date[i] = 0;
+            //     member_borrowed_book[i] = 0;
+
+            //     for (int j = 0; j < MAX_BOOK; j++) {
+            //         member_borrowed_ISBN[i][j] = 0;
+            //     }
+
+                
+            // }
+            break;
             case MEMBER_MANAGEMENT:
                 while(1)
                 {
                     char member_name_to_search[MAX_NAME_LENGTH];  // Khai báo biến
                     int option;
-                    printf("Do you want to add, search or change a member (1-add, 2-search, 3-change, 4-watch members list,5-search by citizen_id,6-search book borrowed by name and delete, 7-exit) ?");
+                    printf("Do you want to add, search or change a member (1-add, 2-search, 3-change, 4-watch members list,5-search by citizen_id,6-search book borrowed by name and delete ?, 7-exit) ?");
                     scanf(" %d", &option);
                     getchar();
 
@@ -341,8 +359,26 @@ enum options {
                             getchar();
                             if (delete_member == 'y' || delete_member == 'Y') {
                                 // Move elements to the right of the deleted element
-                                free(member_borrowed_ISBN[index]);
-                                for (int i = index; i < number_of_current_member_index - 1; i++) {
+                                // free(member_borrowed_ISBN[index]);
+                            
+                            /*HANDLE 'DELETING FUNCTION' FOR 1 MEMBER*/
+                            // if (number_of_current_member_index == 1) {
+                            //     member_id[0] = -1;
+                            //     memset(member_name[0], -1, sizeof(member_name[0]));
+                            //     member_citizen_ID[0] = -1;
+                            //     member_dayOfBirth[0] = -1;
+                            //     memset(member_email[0], -1, sizeof(member_email[0]));
+                            //     memset(member_gender[0], -1, sizeof(member_gender[0]));
+                            //     member_register_date[0] = -1;
+                            //     member_expired_date[0] = -1;
+                            //     for (int i = 0; i < MAX_BOOK; i++) {
+                            //         member_borrowed_ISBN[0][i] = -1;
+                            //     }
+                            //     member_borrowed_book[0] = -1;
+                            // }
+                            /*HANDLE 'DELETING FUNCTION' FOR N MEMBER*/
+                                for (int i = index; i < number_of_current_member_index ; i++) {
+                                    member_id[i] = member_id[i+1];
                                     strcpy(member_name[i], member_name[i + 1]);
                                     member_citizen_ID[i] = member_citizen_ID[i + 1];
                                     member_dayOfBirth[i] = member_dayOfBirth[i + 1];
@@ -350,7 +386,10 @@ enum options {
                                     strcpy(member_gender[i], member_gender[i + 1]);
                                     member_register_date[i] = member_register_date[i + 1];
                                     member_borrowed_book[i] = member_borrowed_book[i + 1];
-                                    memmove(&member_borrowed_ISBN[i], &member_borrowed_ISBN[i + 1], sizeof(member_borrowed_ISBN[i]) * member_borrowed_book[i]);
+                                    // memmove(&member_borrowed_ISBN[i], &member_borrowed_ISBN[i + 1], sizeof(member_borrowed_ISBN[i]) * member_borrowed_book[i]);
+                                    for (int j = 0; j < MAX_BOOK; j++) {
+                                        member_borrowed_ISBN[i][j] = member_borrowed_ISBN[i + 1][j];
+                                    }
                                 }
                                 number_of_current_member_index--;
                                 printf("Member deleted\n");
@@ -546,7 +585,7 @@ enum options {
 
                             if (strcmp(answer, "y") == 0 || strcmp(answer, "Y") == 0) {
                                 // Di chuyển các phần tử đến phần tử được xóa sang phải
-                                for (int i = index; i < number_of_current_book_index - 1; i++) {
+                                for (int i = index; i < number_of_current_book_index; i++) {
                                     book_ISBN[i] = book_ISBN[i + 1];
                                     strcpy(book_name[i], book_name[i + 1]);
                                     strcpy(book_author[i], book_author[i + 1]);
@@ -637,10 +676,9 @@ enum options {
                             // Tăng số lượt mượn, cập nhật thông tin của member
                             member_borrowed_book[index]++;
                             lib_ticket_borrowed_book[number_of_current_ticket_index]++;
-                            if(member_borrowed_book[index] -1 == 0) {
-                                member_borrowed_ISBN[index] = (int*)malloc(MAX_BOOK * sizeof(int));
-                            }
-                            // member_borrowed_ISBN[index] = (int*)realloc(member_borrowed_ISBN[index], sizeof(int) * member_borrowed_book[index]);
+                            // if(member_borrowed_book[index] -1 == 0) {
+                            //     member_borrowed_ISBN[index] = (int*)malloc(MAX_BOOK * sizeof(int));
+                            // }
                             member_borrowed_ISBN[index][member_borrowed_book[index]-1] = book_ISBN[book_index];
                             // Giảm số lượng sách
                             book_amount[book_index]--;
@@ -650,9 +688,9 @@ enum options {
                             lib_ticket_borrow_date[number_of_current_ticket_index] = countDays(day, month, year);
                             lib_ticket_return_date_expected[number_of_current_ticket_index] = countDays(day, month, year) + 7;
                             lib_ticket_return_date_real[number_of_current_ticket_index] = 0;
-                            if(lib_ticket_borrowed_book[number_of_current_ticket_index] - 1 == 0) {
-                                lib_ticket_ISBN[number_of_current_ticket_index] = (int*)malloc(MAX_BOOK * sizeof(int));
-                            }
+                            // if(lib_ticket_borrowed_book[number_of_current_ticket_index] - 1 == 0) {
+                            //     lib_ticket_ISBN[number_of_current_ticket_index] = (int*)malloc(MAX_BOOK * sizeof(int));
+                            // }
                             lib_ticket_ISBN[number_of_current_ticket_index][lib_ticket_borrowed_book[number_of_current_ticket_index]-1] = book_ISBN[book_index]; // ghi ISBN vào ticket_ISBN
 
                             //add sách vào ticket
@@ -704,11 +742,10 @@ enum options {
 
                 break;
             case RETURN_BOOK:
-                //number_of_current_ticket_index is the ticket ID
-                int ticket_id;
-
                 //print list of ticket to choose
                 printf("Existing tickets:\n");
+                //number_of_current_ticket_index is the ticket ID
+                int ticket_id;
                 for (int i = 0; i < number_of_current_ticket_index; i++) {
                     printf("%d\n", lib_ticket_id[i]);
                 }
@@ -780,7 +817,7 @@ enum options {
                         book_amount[book_index_from_book]++; // return a book
                         /*BOOK_LIST*/
                         if(member_borrowed_book[book_index_from_member] > 0) {
-                            for(int i = book_index_from_member ; i < member_borrowed_book[book_index_from_member]-1; i++) {
+                            for(int i = book_index_from_member ; i < member_borrowed_book[book_index_from_member]; i++) {
                                 // start at book we want to remove, then copy next book to the current
                                 member_borrowed_ISBN[book_index_from_member][i] = member_borrowed_ISBN[book_index_from_member][i+1];
                             }
@@ -790,16 +827,16 @@ enum options {
                         
                         /*MEMBER_LIST*/
                         if(lib_ticket_borrowed_book[ticket_index] > 0) {
-                            for(int i = book_index_from_ticket ; i < lib_ticket_borrowed_book[ticket_index]-1; i++) {
+                            for(int i = book_index_from_ticket ; i < lib_ticket_borrowed_book[ticket_index]; i++) {
                                 // start at book we want to remove, then copy next book to the current
                                 lib_ticket_ISBN[ticket_index][i] = lib_ticket_ISBN[ticket_index][i+1];
                             }
                             lib_ticket_ISBN[ticket_index][lib_ticket_borrowed_book[ticket_index]-1] = -1;
                             lib_ticket_borrowed_book[ticket_index]--;  
-                            if(lib_ticket_borrowed_book[ticket_index] == 0) {
-                                free(lib_ticket_ISBN[ticket_index]);
-                                lib_ticket_ISBN[ticket_index] = NULL;
-                            }
+                            // if(lib_ticket_borrowed_book[ticket_index] == 0) {
+                            //     free(lib_ticket_ISBN[ticket_index]);
+                            //     lib_ticket_ISBN[ticket_index] = -1;
+                            // }
                         }
                         } else {
                             printf("Book not found\n");
