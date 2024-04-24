@@ -191,7 +191,7 @@ int main(){
                             getchar();
                             if (delete_member == 'y' || delete_member == 'Y') {
                                 // Move elements to the right of the deleted element
-                                deleteMember(&member[index],index,currentIdx.member_index);
+                                deleteMember(member,index,currentIdx.member_index);
                                 reduceCurrentIndex(&currentIdx.member_index);
                                 printf("Member deleted\n");
                             }
