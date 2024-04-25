@@ -31,6 +31,7 @@ enum options {
 int countDays(int day, int month, int year);
 void printDate_from_countDays(int totalDays);
 void reduceCurrentIndex(int *index);
+void increaseCurrentIndex(int *index);
 #endif
 
 

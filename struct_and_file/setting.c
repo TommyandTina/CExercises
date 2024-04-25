@@ -68,3 +68,7 @@ void printDate_from_countDays(int totalDays) {
 void reduceCurrentIndex(int *index) {
     (*index)--;
 }
+
+void increaseCurrentIndex(int *index) {
+    (*index)++;
+}

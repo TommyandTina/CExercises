@@ -63,12 +63,7 @@ int writeToMember(struct Member *member,struct CurrentIndex *currentIdx){
     // Tính ngày hết hạn (48 tháng sau ngày lập thẻ)
     member->expired_date = member->register_date + 48;                        
     
-    // currentIdx->member_index++;
-    // printf("current member index is %d\n",currentIdx->member_index);
-    //     currentIdx->member_index++;
-    // printf("current member index is %d\n",currentIdx->member_index);
-    //     currentIdx->member_index++;
-    // printf("current member index is %d\n",currentIdx->member_index);
+
     return currentIdx->member_index++;
     // printMember(member);
 }
@@ -160,18 +155,6 @@ void deleteMember(struct Member *member,int index , int amount_of_current_member
     /*HANDLE 'DELETING FUNCTION' FOR N MEMBER*/
     //index is where to delete
     for (int i = index; i < amount_of_current_member ; i++) {
-        // member[i].id = member[i + 1].id;
-        // strcpy(member[i].name, member[i + 1].name);
-        // member[i].citizen_ID = member[i + 1].citizen_ID;
-        // member[i].dayOfBirth = member[i + 1].dayOfBirth;
-        // strcpy(member[i].email, member[i + 1].email);
-        // strcpy(member[i].gender, member[i + 1].gender);
-        // member[i].register_date = member[i + 1].register_date;
-        // member[i].borrowed_book = member[i + 1].borrowed_book;
-        // // memmove(&member_borrowed_ISBN[i], &member_borrowed_ISBN[i + 1], sizeof(member_borrowed_ISBN[i]) * member_borrowed_book[i]);
-        // for (int j = 0; j < MAX_BOOK; j++) {
-        //     member[i].borrowed_ISBN[j] = member[i + 1].borrowed_ISBN[j];
-        // }
         member[i]= member[i+1];
     }
 }
