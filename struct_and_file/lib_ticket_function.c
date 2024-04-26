@@ -21,29 +21,91 @@ void printLibTicket(struct LibTicket lib_ticket){
     printf("----------------------------- \n");
 }
 
-// bool compare
+/*finding function*/
+int compare_ticket_index(struct LibTicket a, struct LibTicket b) {
+    return a.id == b.id;
+}
 
-// int find_in_lib_ticket(struct LibTicket lib_ticket[], int size, bool (*compare)(struct LibTicket, struct LibTicket), char compare_function_name[MAX_NAME_LENGTH]) {
-//     for (int i = 0; i < size; i++) {
-//         if (compare(lib_ticket[i], "compare_function_name")) {
-//             return i;
-//         }
-//     }
-// }
+int find_ticket_book_ISBN(struct LibTicket a, struct LibTicket b) {
+    struct LibTicket find_this;
+    struct LibTicket buf;
+    /*Buf is a larger var, find_this is a smaller var (only have ISBN at [0]). Return index of ISBN in array*/
+    if(a.borrowed_book_amount<b.borrowed_book_amount){
+        buf = b;
+        find_this = a;
+    } else {
+        buf = a;
+        find_this = b;
+    }
+        for (int i = 0; i < buf.borrowed_book_amount; i++) {
+        if(find_this.borrowed_book[0].ISBN == buf.borrowed_book[i].ISBN){
+            return i;
+        }
+    }
+    return -1;
+}
 
+int find_in_lib_ticket(struct LibTicket lib_ticket[], int size, int (*compare)(struct LibTicket, struct LibTicket), char compare_function_name[MAX_NAME_LENGTH]) {
+    struct LibTicket find_this;
+    if(strcmp(compare_function_name, "compare_ticket_index") == 0){
+        printf("Enter id to search: ");
+        scanf(" %d", &find_this.id);
+        getchar();
+        for (int i = 0; i < size; i++) {
+            if (compare(lib_ticket[i], find_this )) {
+                return i;
+                //return ticket index
+            }
+        }
+    } else if(strcmp(compare_function_name, "find_ticket_book_ISBN") == 0){
+        printf("Enter ISBN to search: ");
+        scanf(" %d", &find_this.borrowed_book[0].ISBN);
+        getchar();
+        if(size == 1){
+                //Search on 1 library ticket for book
+                return compare(*lib_ticket, find_this);
+                //return ISBN index
+        }
+    }
+    return -1;
+}
+
+/*update data function*/
 void updateMemberData_AddBorrowTicket(struct Member *member, struct Book book) {
     //add book amount, isbn to member
     member->borrowed_ISBN[member->borrowed_book] = book.ISBN;
     member->borrowed_book++;
 }
 
+void updateMemberData_ReturnBorrowTicket(struct Member *member, int book_index_from_member) {
+    //remove book amount, isbn from member
+    for(int i = book_index_from_member ; i < member->borrowed_book; i++) {
+        // start at book we want to remove, then copy next book to the current
+        member->borrowed_ISBN[i] = member->borrowed_ISBN[i+1];
+    }
+    member->borrowed_book--;
+}
+
+void updateLibTicketData_ReturnBorrowTicket(struct LibTicket *lib_ticket, int book_index_from_lib_ticket) {
+    for(int i = book_index_from_lib_ticket ; i < lib_ticket->borrowed_book_amount; i++) {
+        // start at book we want to remove, then copy next book to the current
+        lib_ticket->borrowed_book[i] = lib_ticket->borrowed_book[i+1];
+    }
+    lib_ticket->borrowed_book_amount--;
+}
+
 int updateBookData_AddBorrowTicket(struct Book *book) {
     return book->amount--;
 }
 
+int updateBookData_ReturnBorrowTicket(struct Book *book) {
+    return book->amount++;
+}
+
+/*process ticket*/
 int writeToLibTicket(struct LibTicket *lib_ticket,struct CurrentIndex *currentIdx, struct Member member_borrowing,int member_index, struct Book book_borrowed, int book_index) {
     int day, month, year;
-    printf("Enter borrowing date: ");
+    printf("Enter borrowing date: (dd/mm/yyyy)");
     scanf("%d/%d/%d", &day, &month, &year);
     getchar();
 
@@ -61,51 +123,56 @@ int writeToLibTicket(struct LibTicket *lib_ticket,struct CurrentIndex *currentId
     return currentIdx->ticket_index;
 }
 
-#if 0
-// if (book_amount[book_index] > 0) {
-//         // Tăng số lượt mượn, cập nhật thông tin của member
-//         member_borrowed_book[index]++;
-//         lib_ticket_borrowed_book[number_of_current_ticket_index]++;
-//         member_borrowed_ISBN[index][member_borrowed_book[index]-1] = book_ISBN[book_index];
-//         // Giảm số lượng sách
-//         book_amount[book_index]--;
-//         // Lưu thông tin về phiếu mượn
-//         lib_ticket_id[number_of_current_ticket_index] = number_of_current_ticket_index;
-//         lib_ticket_member_id[number_of_current_ticket_index] = member_id[index];
-//         lib_ticket_borrow_date[number_of_current_ticket_index] = countDays(day, month, year);
-//         lib_ticket_return_date_expected[number_of_current_ticket_index] = countDays(day, month, year) + 7;
-//         lib_ticket_return_date_real[number_of_current_ticket_index] = 0;
-//         // if(lib_ticket_borrowed_book[number_of_current_ticket_index] - 1 == 0) {
-//         //     lib_ticket_ISBN[number_of_current_ticket_index] = (int*)malloc(MAX_BOOK * sizeof(int));
-//         // }
-//         lib_ticket_ISBN[number_of_current_ticket_index][lib_ticket_borrowed_book[number_of_current_ticket_index]-1] = book_ISBN[book_index]; // ghi ISBN vào ticket_ISBN
+int returnLibTicket(struct LibTicket *lib_ticket,int ticket_index,int ISBN_index_libTicket ,struct CurrentIndex *currentIdx, struct Member *member_borrowing, struct Book *book_borrowed) {
+    char answer[2];
+    printf("Do you want to continue returning book? (y/n): ");
+    scanf(" %c", answer);
+    getchar();
+    if (strcmp(answer, "y") == 0 || strcmp(answer, "Y") == 0) {
+            //RETURN TICKET
+            int penalty_fee = 0;
+            int book_index_from_ticket = ISBN_index_libTicket;
+            int book_index_from_member = lib_ticket[ticket_index].member.index;
+            int book_index_from_book = lib_ticket[ticket_index].borrowed_book[book_index_from_ticket].index;
 
-//         //add sách vào ticket
-//         char answer = 'y'; // giá trị mặc định
-//         while (answer == 'y' || answer == 'Y') { //vòng lặp để mượn thêm cuốn
-//             printf("Do you want to borrow more book? (y/n) "); // hỏi còn mượn thêm cuốn không
-//             scanf(" %c", &answer); // đọc giá trị
-//             getchar();
-//             if (answer == 'y' || answer == 'Y') { // nếu có thì tìm tên sách xong tra ISBN để đưa vào index kế của ticket_ISBN
-//                 printf("Enter book name to borrow: "); // hỏi tên sách
-//                 fgets(input_book_name, MAX_NAME_LENGTH, stdin);
-//                 input_book_name[strlen(input_book_name)-1] = '\0'; // loại bỏ ký tự \n
-//                 book_index = search_index_to_get_info_fromstr(input_book_name,book_name,MAX_NAME_LENGTH); // tìm ISBN
-//                 if (book_index != -1) { // nếu tìm thấy sách
-//                     printf("Book found\n");
-//                     // lib_ticket_ISBN[number_of_current_ticket_index] = (int*)realloc(lib_ticket_ISBN[number_of_current_ticket_index], sizeof(int) * (member_borrowed_book[index]+1)); // mở rộng ticket_ISBN
-//                     lib_ticket_ISBN[number_of_current_ticket_index][lib_ticket_borrowed_book[number_of_current_ticket_index]] = book_ISBN[book_index]; // ghi ISBN vào ticket_ISBN
-//                     member_borrowed_ISBN[index][member_borrowed_book[index]] = book_ISBN[book_index];// ghi vào member
-//                     member_borrowed_book[index]++; // tăng số lượt mượn ở member
-//                     lib_ticket_borrowed_book[number_of_current_ticket_index]++; // tăng số lượt mượn ở ticket
-//                     book_amount[book_index]--;   // Giảm số lượng sách                     
-//                 }
-//             }
-//         }
+            // update current date of ticket
+            printf("Enter current day/month/year: ");
+            int day, month, year;
+            scanf("%d/%d/%d", &day, &month, &year);
+            getchar();
+            lib_ticket[ticket_index].return_date_real = countDays(day, month, year); // update current date of ticket
 
-//         //in ra thông tin ticket
-//     printLibTicket(lib_ticket, number_of_current_ticket_index);
-//     } else {
-//         printf("Book is out of stock\n");
-//     }
-#endif
+            /*PROCESSING...*/                   
+            if (book_index_from_ticket != -1) {
+                printf("Book found, are you missing it? (y/n): ");
+                scanf(" %c", answer);
+                getchar();
+                if (strcmp(answer, "y") == 0 || strcmp(answer, "Y") == 0) {
+
+                    penalty_fee = book_borrowed[book_index_from_book].price * 2;
+                    printf("Penalty fee: %d\n", book_borrowed[book_index_from_book].price * 2);      
+                } else {
+                    int diff_day = countDays(day, month, year)- lib_ticket[ticket_index].return_date_expected;
+                    if ( diff_day > 0) {
+                        penalty_fee = book_borrowed[book_index_from_book].price * diff_day;
+                        printf("Penalty fee: %d\n", book_borrowed[book_index_from_book].price * diff_day);
+                    }
+                }
+
+
+            /*BOOK RETURNING...*/
+            updateBookData_ReturnBorrowTicket(&book_borrowed[book_index_from_book]);
+
+            /*MEMBER RETURNING...*/
+            updateMemberData_ReturnBorrowTicket(&member_borrowing[lib_ticket[ticket_index].member.index], book_index_from_member); 
+
+            /*TICKET RETURNING...*/
+            updateLibTicketData_ReturnBorrowTicket(&lib_ticket[ticket_index], book_index_from_ticket);
+            reduceCurrentIndex(&currentIdx->ticket_index);
+            return penalty_fee;
+        }
+    } else {
+        printf("Returning canceled OR book not found\n");
+        return -1;
+    }      
+}             
