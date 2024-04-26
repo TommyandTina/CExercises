@@ -282,7 +282,7 @@ int main(){
                 printf("Return book : Done\n");
                 
                 break;
-#if 1
+
             case STATISTIC_ANALYSIS:
                 //enter current date to analyse
                 printf("Input current date (day/month/year): ");                
@@ -390,7 +390,7 @@ int main(){
             default:
                 printf("Invalid option\n");
                 break;
-#endif
+
         }
     }
 
