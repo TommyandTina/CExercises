@@ -1,10 +1,12 @@
 #include "setting.h"
 #include "member_function.h"
 #include "book_function.h"
+#include "lib_ticket_function.h"
 
 int main(){
     struct Member member[MAX_MEMBERS];
     struct Book book[MAX_BOOK];
+    struct LibTicket lib_ticket[MAX_TICKET];
     struct CurrentIndex currentIdx = {
         0, 0, 0,
     };
@@ -58,106 +60,106 @@ int main(){
             printf("Data init, choose this option again can lost all data\n");
 
             break;
-
+#if 0 //sửa lại find in member
             case MEMBER_MANAGEMENT:
-                while(1)
+            while(1)
+            {
+                // char member_name_to_search[MAX_NAME_LENGTH];  // Khai báo biến
+                int option;
+                printf("Do you want to add, search or change a member (1-add, 2-search by name, 3-change info, 4-watch members list,5-search by citizen_id,6-search book borrowed by name and delete ?, 7-exit) ?");
+                scanf(" %d", &option);
+                getchar();
+
+                if(option == 1)
                 {
-                    // char member_name_to_search[MAX_NAME_LENGTH];  // Khai báo biến
-                    int option;
-                    printf("Do you want to add, search or change a member (1-add, 2-search by name, 3-change info, 4-watch members list,5-search by citizen_id,6-search book borrowed by name and delete ?, 7-exit) ?");
-                    scanf(" %d", &option);
-                    getchar();
+                    writeToMember(&member[currentIdx.member_index], &currentIdx);
+                    printf("current member index is %d\n",currentIdx.member_index);
+                }
+                else if(option == 2) 
+                {
+                    printf("Only name affect, don't use ID\n");
+                    int index = find_in_members(member,MAX_NAME_LENGTH,compare_name,"compare_name");
+                    if(index != -1)
+                    {
+                        printMember(&member[index]);
+                        printf("member index is %d\n",index);
+                    }
+                    else
+                    {
+                        printf("Member not found\n");
+                    }
 
-                    if(option == 1)
+                }
+                else if(option == 3)
+                {
+                    printf("Only name affect, don't use ID\n");
+                    int index = find_in_members(member,MAX_NAME_LENGTH,compare_name,"compare_name");
+                    if(index == -1)
                     {
-                        writeToMember(&member[currentIdx.member_index], &currentIdx);
-                        printf("current member index is %d\n",currentIdx.member_index);
+                        printf("Member not found\n");
                     }
-                    else if(option == 2) 
+                    else
                     {
-                        printf("Only name affect, don't use ID\n");
-                        int index = find_in_members(member,MAX_NAME_LENGTH,compare_name);
-                        if(index != -1)
-                        {
-                            printMember(&member[index]);
-                            printf("member index is %d\n",index);
-                        }
-                        else
-                        {
-                            printf("Member not found\n");
-                        }
-
+                        changeMemberinfo(&member[index],index);
                     }
-                    else if(option == 3)
+                }
+                else if (option == 4)
+                {
+                    printf("Option 4: Current members:\n");
+                    for(int i = 0; i < currentIdx.member_index; i++)
                     {
-                        printf("Only name affect, don't use ID\n");
-                        int index = find_in_members(member,MAX_NAME_LENGTH,compare_name);
-                        if(index == -1)
-                        {
-                            printf("Member not found\n");
-                        }
-                        else
-                        {
-                            changeMemberinfo(&member[index],index);
-                        }
+                        printMember(&member[i]);
+                        printf("member index is %d\n",i);
+                        printf("----------------------------\n");
                     }
-                    else if (option == 4)
+                }
+                else if (option == 5)
+                {
+                    printf("Only citizen ID affect, don't use name\n");
+                    int new_index = find_in_members(member,sizeof(int),compare_Citizen_id,"compare_Citizen_id");
+                    printf("Index: %d\n", new_index);
+                    if (new_index != -1)
                     {
-                        printf("Option 4: Current members:\n");
-                        for(int i = 0; i < currentIdx.member_index; i++)
-                        {
-                            printMember(&member[i]);
-                            printf("member index is %d\n",i);
-                            printf("----------------------------\n");
-                        }
+                        printMember(&member[new_index]);
                     }
-                    else if (option == 5)
+                    else
                     {
-                        printf("Only citizen ID affect, don't use name\n");
-                        int new_index = find_in_members(member,sizeof(int),compare_Citizen_id);
-                        printf("Index: %d\n", new_index);
-                        if (new_index != -1)
-                        {
-                            printMember(&member[new_index]);
+                        printf("User not found\n");
+                    }
+                }
+                else if (option == 6)
+                {
+                    printf("Only name affect, don't use ID\n");
+                    int index = find_in_members(member,MAX_NAME_LENGTH,compare_name,"compare_name");
+                    if (index != -1)
+                    {
+                        printMember(&member[index]);
+                        printf("Do you want to delete this member (y/n): ");
+                        char delete_member;
+                        scanf(" %c", &delete_member);
+                        getchar();
+                        if (delete_member == 'y' || delete_member == 'Y') {
+                            // Move elements to the right of the deleted element
+                            deleteMember(member,index,currentIdx.member_index);
+                            reduceCurrentIndex(&currentIdx.member_index);
+                            printf("Member deleted\n");
                         }
-                        else
-                        {
-                            printf("User not found\n");
+                        else {
+                            printf("Member not deleted\n");
                         }
                     }
-                    else if (option == 6)
+                    else
                     {
-                        printf("Only name affect, don't use ID\n");
-                        int index = find_in_members(member,MAX_NAME_LENGTH,compare_name);
-                        if (index != -1)
-                        {
-                            printMember(&member[index]);
-                            printf("Do you want to delete this member (y/n): ");
-                            char delete_member;
-                            scanf(" %c", &delete_member);
-                            getchar();
-                            if (delete_member == 'y' || delete_member == 'Y') {
-                                // Move elements to the right of the deleted element
-                                deleteMember(member,index,currentIdx.member_index);
-                                reduceCurrentIndex(&currentIdx.member_index);
-                                printf("Member deleted\n");
-                            }
-                            else {
-                                printf("Member not deleted\n");
-                            }
-                        }
-                        else
-                        {
-                            printf("Member not found\n");
-                        }
-                    } 
-                    else if (option == 7) 
-                    {
-                        //WRTIE TO FILE
-                        break;
+                        printf("Member not found\n");
                     }
-                }                
+                } 
+                else if (option == 7) 
+                {
+                    //WRTIE TO FILE
                     break;
+                }
+            }                
+                break;
 
             case BOOK_MANAGEMENT:
             while(1) {
@@ -247,100 +249,22 @@ int main(){
             }
         } 
         break;
-#if 0                        
+#endif                    
             case BORROW_BOOK:
                 printf("Book borrow selected\n");
-                printf("Enter member name to search: ");
-                char input_name[MAX_NAME_LENGTH];
-                fgets(input_name, MAX_NAME_LENGTH, stdin);
-                input_name[strlen(input_name)-1] = '\0';
-                int index = search_index_to_get_info_fromstr(input_name, member_name,MAX_NAME_LENGTH);
-                if (index != -1) {
-                    printf("Member found\n");
-                    printf("Member ID: %d\n", member_id[index]);
-                    printf("Member name: %s\n", member_name[index]);
-                    printf("Books borrowed:\n");
-                    for (int i = 0; i < member_borrowed_book[index]; i++) {
-                        printf("%d\n", member_borrowed_ISBN[index][i]);
-                    }
-                    printf("Enter book name to borrow: ");
-                    char input_book_name[MAX_NAME_LENGTH];
-                    fgets(input_book_name, MAX_NAME_LENGTH, stdin);
-                    input_book_name[strlen(input_book_name)-1] = '\0';
-                    int book_index = search_index_to_get_info_fromstr(input_book_name,book_name,MAX_NAME_LENGTH);
 
+                int index = find_in_members(member, MAX_NAME_LENGTH, compare_name, "compare_name");
+                if (index != -1) {
+                    printMember(&member[index]);
+                    int book_index = find_in_books(book, MAX_NAME_LENGTH, compare_book_name, "compare_book_name");
                     if (book_index != -1) {
                         printf("Book found\n");
-                        printf("Enter day of borrow (dd): ");
-                        int day;
-                        scanf("%d", &day);
-                        getchar();
-                        printf("Enter month of borrow (mm): ");
-                        int month;
-                        scanf("%d", &month);
-                        getchar();
-                        printf("Enter year of borrow (yyyy): ");
-                        int year;
-                        scanf("%d", &year);
-                        getchar();
-                        if (book_amount[book_index] > 0) {
-                            // Tăng số lượt mượn, cập nhật thông tin của member
-                            member_borrowed_book[index]++;
-                            lib_ticket_borrowed_book[number_of_current_ticket_index]++;
-                            // if(member_borrowed_book[index] -1 == 0) {
-                            //     member_borrowed_ISBN[index] = (int*)malloc(MAX_BOOK * sizeof(int));
-                            // }
-                            member_borrowed_ISBN[index][member_borrowed_book[index]-1] = book_ISBN[book_index];
-                            // Giảm số lượng sách
-                            book_amount[book_index]--;
-                            // Lưu thông tin về phiếu mượn
-                            lib_ticket_id[number_of_current_ticket_index] = number_of_current_ticket_index;
-                            lib_ticket_member_id[number_of_current_ticket_index] = member_id[index];
-                            lib_ticket_borrow_date[number_of_current_ticket_index] = countDays(day, month, year);
-                            lib_ticket_return_date_expected[number_of_current_ticket_index] = countDays(day, month, year) + 7;
-                            lib_ticket_return_date_real[number_of_current_ticket_index] = 0;
-                            // if(lib_ticket_borrowed_book[number_of_current_ticket_index] - 1 == 0) {
-                            //     lib_ticket_ISBN[number_of_current_ticket_index] = (int*)malloc(MAX_BOOK * sizeof(int));
-                            // }
-                            lib_ticket_ISBN[number_of_current_ticket_index][lib_ticket_borrowed_book[number_of_current_ticket_index]-1] = book_ISBN[book_index]; // ghi ISBN vào ticket_ISBN
-
-                            //add sách vào ticket
-                            char answer = 'y'; // giá trị mặc định
-                            while (answer == 'y' || answer == 'Y') { //vòng lặp để mượn thêm cuốn
-                                printf("Do you want to borrow more book? (y/n) "); // hỏi còn mượn thêm cuốn không
-                                scanf(" %c", &answer); // đọc giá trị
-                                getchar();
-                                if (answer == 'y' || answer == 'Y') { // nếu có thì tìm tên sách xong tra ISBN để đưa vào index kế của ticket_ISBN
-                                    printf("Enter book name to borrow: "); // hỏi tên sách
-                                    fgets(input_book_name, MAX_NAME_LENGTH, stdin);
-                                    input_book_name[strlen(input_book_name)-1] = '\0'; // loại bỏ ký tự \n
-                                    book_index = search_index_to_get_info_fromstr(input_book_name,book_name,MAX_NAME_LENGTH); // tìm ISBN
-                                    if (book_index != -1) { // nếu tìm thấy sách
-                                        printf("Book found\n");
-                                        // lib_ticket_ISBN[number_of_current_ticket_index] = (int*)realloc(lib_ticket_ISBN[number_of_current_ticket_index], sizeof(int) * (member_borrowed_book[index]+1)); // mở rộng ticket_ISBN
-                                        lib_ticket_ISBN[number_of_current_ticket_index][lib_ticket_borrowed_book[number_of_current_ticket_index]] = book_ISBN[book_index]; // ghi ISBN vào ticket_ISBN
-                                        member_borrowed_ISBN[index][member_borrowed_book[index]] = book_ISBN[book_index];// ghi vào member
-                                        member_borrowed_book[index]++; // tăng số lượt mượn ở member
-                                        lib_ticket_borrowed_book[number_of_current_ticket_index]++; // tăng số lượt mượn ở ticket
-                                        book_amount[book_index]--;   // Giảm số lượng sách                     
-                                    }
-                                }
-                            }
-
-                            //in ra thông tin ticket
-                            printf("Information of borrow ticket:\n");
-                            printf("Ticket ID: %d\n", lib_ticket_id[number_of_current_ticket_index] );
-                            printf("Member ID: %d\n", lib_ticket_member_id[number_of_current_ticket_index]);
-                            printf("Borrow date:");
-                            printDate_from_countDays(lib_ticket_borrow_date[number_of_current_ticket_index]);
-                            printf("Expected return date:");
-                            printDate_from_countDays(lib_ticket_return_date_expected[number_of_current_ticket_index]);
-                            printf("Return date (real): Unknown\n");
-                            printf("Book(s) borrowed:\n");
-                            for (int i = 0; i < lib_ticket_borrowed_book[number_of_current_ticket_index]; i++) {
-                                printf("%d\n", lib_ticket_ISBN[number_of_current_ticket_index][i]);
-                            }
-                            number_of_current_ticket_index++;
+                        if (book[book_index].amount > 0) {
+                            //ADD TICKET
+                            updateMemberData_AddBorrowTicket(&member[index], book[book_index]);
+                            updateBookData_AddBorrowTicket(&book[book_index]);
+                            int current_ticket_index = writeToLibTicket(&lib_ticket[currentIdx.ticket_index], &currentIdx, member[index], index, book[book_index], book_index);
+                            printf("Ticket ID: %d\n", current_ticket_index);
                         } else {
                             printf("Book is out of stock\n");
                         }
@@ -352,6 +276,7 @@ int main(){
                 }
 
                 break;
+#if 0
             case RETURN_BOOK:
                 //print list of ticket to choose
                 printf("Existing tickets:\n");

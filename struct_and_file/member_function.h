@@ -19,7 +19,7 @@ struct Member
 
 void printMember(struct Member *member);
 int writeToMember(struct Member *member,struct CurrentIndex *currentIdx);
-int find_in_members(struct Member member[MAX_MEMBERS], int size, bool (*compare)(struct Member, struct Member));
+int find_in_members(struct Member member[], int size, bool (*compare)(struct Member, struct Member),char compare_function_name[MAX_NAME_LENGTH]);
 bool compare_Citizen_id(struct Member a, struct Member b);
 bool compare_name(struct Member a, struct Member b);
 void changeMemberinfo(struct Member *member, int index);

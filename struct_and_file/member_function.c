@@ -79,16 +79,18 @@ bool compare_name(struct Member a, struct Member b) {
 }
 
 //Hàm tìm kiếm trong member
-int find_in_members(struct Member member[], int size, bool (*compare)(struct Member, struct Member)) {
+int find_in_members(struct Member member[], int size, bool (*compare)(struct Member, struct Member),char compare_function_name[MAX_NAME_LENGTH]) {
     struct Member find_this;
-    printf("Enter name to search:(skip if don't use) ");
-    fgets(&find_this.name, MAX_NAME_LENGTH, stdin);
-    find_this.name[strlen(find_this.name)-1] = '\0';  // Loại bỏ ký tự xuống dòng
-    
-    printf("Enter Citizen ID to search: (skip if don't use)");
-    scanf(" %d",&find_this.citizen_ID);
-    getchar();
-    
+    if(strcmp(compare_function_name, "compare_Citizen_id") == 0){
+        printf("Enter Citizen ID to search: ");
+        scanf(" %d",&find_this.citizen_ID);
+        getchar();
+    } else if(strcmp(compare_function_name, "compare_name") == 0){
+        printf("Enter name to search: ");
+        fgets(&find_this.name, MAX_NAME_LENGTH, stdin);
+        find_this.name[strlen(find_this.name)-1] = '\0';  // Loại bỏ ký tự xuống dòng
+    }
+
     for (int i = 0; i < size; i++) {
         if (compare(member[i], find_this)) {
             return i;
