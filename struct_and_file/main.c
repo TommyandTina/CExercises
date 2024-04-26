@@ -17,7 +17,7 @@ int main(){
     load_lib_ticket_from_file(lib_ticket);
     load_current_index_from_file(&currentIdx);
     printf("Data loaded\n");
-    
+
     while(1) {
         printf("Enter an option number (1 - START - LOAD DATA FROM FILE, 2 - MEMBER_MANAGEMENT, 3 - BOOK_MANAGEMENT, 4 - BORROW_BOOK, 5 - RETURN_BOOK, 6 - STATISTIC_ANALYSIS, 7 - EXIT): ");
         int temp;
@@ -374,6 +374,19 @@ int main(){
                 save_current_index_to_file(&currentIdx);
                 printf("Data saved\n");
                 return 0;
+            case 99999:
+                //DELETE FILE, TESTING ONLY, DO NOT USE
+                printf("DELETE FILE\n");
+                char file_name[4][MAX_NAME_LENGTH] = {"member_data.bin", "book_data.bin", "lib_ticket_data.bin", "currentIdx_data.bin"};
+                for (int i = 0; i < 4; i++) {
+                    int result = remove(file_name[i]);
+                    if (result == 0) {
+                        printf("%s deleted\n", file_name[i]);
+                    } else {
+                        printf("Cannot delete %s\n", file_name[i]);
+                    }
+                }
+                break;
             default:
                 printf("Invalid option\n");
                 break;
