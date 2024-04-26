@@ -174,5 +174,27 @@ int returnLibTicket(struct LibTicket *lib_ticket,int ticket_index,int ISBN_index
     } else {
         printf("Returning canceled OR book not found\n");
         return -1;
-    }      
+    }
+    return -1;      
 }             
+
+void save_lib_ticket_to_file(struct LibTicket *lib_ticket) {
+    FILE *file = fopen("lib_ticket_data.bin", "wb");
+    if (file != NULL) {
+        fwrite(lib_ticket, sizeof(struct LibTicket), MAX_TICKET, file);
+        fclose(file);
+    } else {
+        printf("Cannot open file\n");
+    }
+}
+
+void load_lib_ticket_from_file(struct LibTicket *lib_ticket) {
+    FILE *file = fopen("lib_ticket_data.bin", "rb");
+    if (file != NULL) {
+        fread(lib_ticket, sizeof(struct LibTicket), MAX_TICKET, file);
+        // fseek(file, 0, SEEK_SET);
+        fclose(file);
+    } else {
+        // printf("Cannot open file\n");
+    }
+}

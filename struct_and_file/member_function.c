@@ -87,7 +87,7 @@ int find_in_members(struct Member member[], int size, bool (*compare)(struct Mem
         getchar();
     } else if(strcmp(compare_function_name, "compare_name") == 0){
         printf("Enter name to search: ");
-        fgets(&find_this.name, MAX_NAME_LENGTH, stdin);
+        fgets(find_this.name, MAX_NAME_LENGTH, stdin);
         find_this.name[strlen(find_this.name)-1] = '\0';  // Loại bỏ ký tự xuống dòng
     }
 
@@ -127,6 +127,7 @@ void changeMemberinfo(struct Member *member, int index){
             scanf("%d/%d/%d", &day, &month, &year);
             getchar();
             member[index].dayOfBirth = countDays(day, month, year);
+            break;
         case 5:
             printf("Enter new email: ");
             fgets(member[index].email, MAX_NAME_LENGTH, stdin);  // Nhập tên thành viên
@@ -142,6 +143,7 @@ void changeMemberinfo(struct Member *member, int index){
             scanf("%d/%d/%d", &day, &month, &year);
             getchar();
             member[index].register_date = countDays(day, month, year);
+            break;
         case 8:
             printf("Enter new expired date (dd/mm/yyyy): ");
             scanf("%d/%d/%d", &day, &month, &year);
@@ -158,5 +160,27 @@ void deleteMember(struct Member *member,int index , int amount_of_current_member
     //index is where to delete
     for (int i = index; i < amount_of_current_member ; i++) {
         member[i]= member[i+1];
+    }
+}
+
+
+void save_member_to_file(struct Member *member) {
+    FILE *file = fopen("member_data.bin", "wb");
+    if (file != NULL) {
+        fwrite(member, sizeof(struct Member), MAX_MEMBERS, file);
+        fclose(file);
+    } else {
+        printf("Cannot open file\n");
+    }
+}
+
+void load_member_from_file(struct Member *member) {
+    FILE *file = fopen("member_data.bin", "rb");
+    if (file != NULL) {
+        fread(member, sizeof(struct Member), MAX_MEMBERS, file);
+        // fseek(file, 0, SEEK_SET);
+        fclose(file);
+    } else {
+        // printf("Cannot open file\n");
     }
 }

@@ -11,56 +11,28 @@ int main(){
         0, 0, 0,
     };
 
-#if 0
-    int number_of_current_member_index = 0;
-    int number_of_current_book_index = 0;
-    int number_of_current_ticket_index = 0;
-    int day, month, year;
-
-    int member_id[MAX_MEMBERS];
-    char member_name[MAX_MEMBERS][MAX_NAME_LENGTH];
-    int member_citizen_ID[MAX_MEMBERS];
-    int member_dayOfBirth[MAX_MEMBERS];
-    char member_email[MAX_MEMBERS][MAX_NAME_LENGTH];
-    char member_gender[MAX_MEMBERS][MAX_NAME_LENGTH];
-    int member_register_date[MAX_MEMBERS];
-    int member_expired_date[MAX_MEMBERS];
-    int member_borrowed_ISBN[MAX_MEMBERS][MAX_BOOK];
-    int member_borrowed_book[MAX_MEMBERS];
-    memset(member_borrowed_book, 0, sizeof(member_borrowed_book));
-
-    int book_ISBN[MAX_BOOK];
-    char book_name[MAX_BOOK][MAX_NAME_LENGTH];
-    char book_author[MAX_BOOK][MAX_NAME_LENGTH];
-    char book_publishing_company[MAX_BOOK][MAX_NAME_LENGTH];
-    int book_publishing_year[MAX_BOOK];
-    char book_type[MAX_BOOK][MAX_NAME_LENGTH];
-    int book_price[MAX_BOOK];
-    int book_amount[MAX_BOOK];
-
-    int lib_ticket_id[MAX_TICKET];
-    int lib_ticket_member_id[MAX_TICKET];
-    int lib_ticket_borrow_date[MAX_TICKET];
-    int lib_ticket_return_date_expected[MAX_TICKET];
-    int lib_ticket_return_date_real[MAX_TICKET];
-    int lib_ticket_ISBN[MAX_TICKET][MAX_BOOK];
-    int lib_ticket_borrowed_book[MAX_TICKET];
-    memset(lib_ticket_borrowed_book, 0, sizeof(lib_ticket_borrowed_book));
-    // int lib_ticket_book_alive[MAX_TICKET];
-#endif
-
-
-    enum options input_option;
+    printf("Data init, choose this option again to load all data again\n");
+    load_member_from_file(member);
+    load_book_from_file(book);
+    load_lib_ticket_from_file(lib_ticket);
+    load_current_index_from_file(&currentIdx);
+    printf("Data loaded\n");
+    
     while(1) {
-        printf("Enter an option number (1 - START - DATA INIT (RESET DATA), 2 - MEMBER_MANAGEMENT, 3 - BOOK_MANAGEMENT, 4 - BORROW_BOOK, 5 - RETURN_BOOK, 6 - STATISTIC_ANALYSIS, 7 - EXIT): ");
-        scanf(" %d", &input_option);
+        printf("Enter an option number (1 - START - LOAD DATA FROM FILE, 2 - MEMBER_MANAGEMENT, 3 - BOOK_MANAGEMENT, 4 - BORROW_BOOK, 5 - RETURN_BOOK, 6 - STATISTIC_ANALYSIS, 7 - EXIT): ");
+        int temp;
+        scanf(" %d", &temp);
         getchar();
+        enum options input_option = temp;
         switch (input_option) {
             case START:
-            printf("Data init, choose this option again can lost all data\n");
-
+            printf("Data init, choose this option again to load all data again\n");
+            load_member_from_file(member);
+            load_book_from_file(book);
+            load_lib_ticket_from_file(lib_ticket);
+            load_current_index_from_file(&currentIdx);
+            printf("Data loaded\n");
             break;
-#if 1 //sửa lại find in member
             case MEMBER_MANAGEMENT:
             while(1)
             {
@@ -156,6 +128,9 @@ int main(){
                 else if (option == 7) 
                 {
                     //WRTIE TO FILE
+                    save_member_to_file(member);
+                    save_current_index_to_file(&currentIdx);
+                    printf("Data saved\n");
                     break;
                 }
             }                
@@ -240,6 +215,8 @@ int main(){
             }
             else if (input_option_book == 7) {
                 //WRITE TO FILE
+                save_book_to_file(book);
+                save_current_index_to_file(&currentIdx);
                 printf("exit\n");
                 break;
             }
@@ -247,10 +224,7 @@ int main(){
                 printf("Invalid option\n");
             }
         } 
-        break;
-#endif          
-
-#if 1 //chạy ok, chưa test
+        break;        
             case BORROW_BOOK:
                 printf("Book borrow selected\n");
                 printf("MEMBER:\n");
@@ -267,6 +241,8 @@ int main(){
                             updateBookData_AddBorrowTicket(&book[book_index]);
                             int current_ticket_index = writeToLibTicket(&lib_ticket[currentIdx.ticket_index], &currentIdx, member[index], index, book[book_index], book_index);
                             printf("Ticket ID: %d\n", current_ticket_index);
+                            save_lib_ticket_to_file(lib_ticket);
+                            save_current_index_to_file(&currentIdx);
                         } else {
                             printf("Book is out of stock\n");
                         }
@@ -278,7 +254,6 @@ int main(){
                 }
 
                 break;
-#endif
 
             case RETURN_BOOK:
                 //print list of ticket to choose
@@ -296,6 +271,8 @@ int main(){
                     int ISBN_index_libTicket = find_in_lib_ticket(lib_ticket, 1, find_ticket_book_ISBN, "find_ticket_book_ISBN");
                     if (ISBN_index_libTicket != -1) {
                         returnLibTicket(lib_ticket, ticket_index, ISBN_index_libTicket, &currentIdx, member, book);
+                        save_lib_ticket_to_file(lib_ticket);
+                        save_current_index_to_file(&currentIdx);
                     }
 
                 } else {
@@ -305,7 +282,7 @@ int main(){
                 printf("Return book : Done\n");
                 
                 break;
-#if 0
+#if 1
             case STATISTIC_ANALYSIS:
                 //enter current date to analyse
                 printf("Input current date (day/month/year): ");                
@@ -314,9 +291,9 @@ int main(){
                 getchar();            
                 // A. Total books in library
                 int amount_of_books = 0;                
-                for (int i = 0; i < number_of_current_book_index; i++) {
-                    if(book_amount[i] > 0){
-                        amount_of_books += book_amount[i];
+                for (int i = 0; i < currentIdx.book_index; i++) {
+                    if(book[i].amount > 0){
+                        amount_of_books += book[i].amount;
                     } 
                 }
                 printf("a. Amount of books in library: %d\n", amount_of_books);
@@ -329,40 +306,40 @@ int main(){
                 int type_count = 0;
 
                 // Giả sử số lượng sách là n
-                int n = number_of_current_book_index;
+                int n = currentIdx.book_index;
 
                 for(int i = 0; i < n; i++) {
                     int j;
-                    for(j = 0; j < type_count; j++) {
-                        if(strcmp(book_type[i], book_type_list[j]) == 0) {
-                            book_count_by_type[j]+=book_amount[i];
+                    for( j = 0; j < type_count; j++) {
+                        if(strcmp(book[i].type, book_type_list[j]) == 0) {
+                            book_count_by_type[j]+=book[i].amount;
                             break;
                         }
                     }
                     if(j == type_count) {
-                        strcpy(book_type_list[type_count], book_type[i]);
-                        book_count_by_type[type_count]+=book_amount[i];
+                        strcpy(book_type_list[type_count], book[i].type);
+                        book_count_by_type[type_count]+=book[i].amount;
                         type_count++;
                     }
                 }
 
                 printf("B.Amount of books by categories:\n");
                 for(int i = 0; i < type_count; i++) {
-                    printf("%s: %d\n", book_type_list[i], book_count_by_type[i]);
+                    printf("type %s: %d\n", book_type_list[i], book_count_by_type[i]);
                 }
 
                 //C. Total members
-                printf("D. Amount of members: %d\n", number_of_current_member_index);
+                printf("D. Amount of members: %d\n", currentIdx.member_index);
                 
 
                 // D. Total members by gender
                 int amount_of_members_by_gender[3];  // male, female, other
-                for (int i = 0; i < number_of_current_member_index; i++) {
-                    if (strcmp(member_gender[i], "male") == 0) {
+                for (int i = 0; i < currentIdx.member_index; i++) {
+                    if (strcmp(member[i].gender, "male") == 0) {
                         amount_of_members_by_gender[0]++;
-                    } else if (strcmp(member_gender[i], "female") == 0) {
+                    } else if (strcmp(member[i].gender, "female") == 0) {
                         amount_of_members_by_gender[1]++;
-                    } else if(strcmp(member_gender[i], "other") == 0) {
+                    } else if(strcmp(member[i].gender, "other") == 0) {
                         amount_of_members_by_gender[2]++;
                     }
                 }
@@ -373,9 +350,9 @@ int main(){
 
                 //E. Total books borrowed
                 int total_books_borrowed = 0;
-                for (int i = 0; i < number_of_current_member_index; i++) {
-                    if(member_borrowed_book[i] > 0){
-                        total_books_borrowed += member_borrowed_book[i];
+                for (int i = 0; i < currentIdx.member_index; i++) {
+                    if(member[i].borrowed_book > 0){
+                        total_books_borrowed += member[i].borrowed_book;
                     }
                 }
                 printf("E. Total books borrowed: %d\n", total_books_borrowed);
@@ -383,14 +360,19 @@ int main(){
                 //F. List of late members
                 printf("F. List of late members:\n");
                 int current_date = countDays(day, month, year);
-                for (int i = 0; i < number_of_current_ticket_index; i++) {
-                    if (lib_ticket_borrowed_book[i] > 0 && current_date > lib_ticket_return_date_expected[i]) {
-                        printf("%s\n", member_name[search_index_to_get_info_fromint(lib_ticket_member_id[i], member_id)]);
+                for (int i = 0; i < currentIdx.ticket_index; i++) {
+                    if (lib_ticket[i].borrowed_book_amount > 0 && current_date > lib_ticket[i].return_date_expected) {
+                        printf("%s\n", member[lib_ticket[i].member.index].name);
                     }
                 }
                 break;
             case EXIT:
                 printf("Exit selected\n");
+                save_lib_ticket_to_file(lib_ticket);
+                save_member_to_file(member);
+                save_book_to_file(book);
+                save_current_index_to_file(&currentIdx);
+                printf("Data saved\n");
                 return 0;
             default:
                 printf("Invalid option\n");

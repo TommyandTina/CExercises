@@ -36,7 +36,7 @@ int find_in_books(struct Book book[], int size, bool (*compare)(struct Book, str
     getchar();
     } else if(strcmp(compare_function_name, "compare_book_name") == 0){
         printf("Enter name to search: ");
-        fgets(&find_this.name, MAX_NAME_LENGTH, stdin);
+        fgets(find_this.name, MAX_NAME_LENGTH, stdin);
         find_this.name[strlen(find_this.name)-1] = '\0';  // Loại bỏ ký tự xuống dòng
     }
 
@@ -147,6 +147,23 @@ void deleteBook(struct Book *book,int index , int amount_of_current_book){
     }
 }
 
-// void book_management() {
-           
-// }
+void save_book_to_file(struct Book *book) {
+    FILE *file = fopen("book_data.bin", "wb");
+    if (file != NULL) {
+        fwrite(book, sizeof(struct Book), MAX_TICKET, file);
+        fclose(file);
+    } else {
+        printf("Cannot open file\n");
+    }
+}
+
+void load_book_from_file(struct Book *book) {
+    FILE *file = fopen("book_data.bin", "rb");
+    if (file != NULL) {
+        fread(book, sizeof(struct Book), MAX_TICKET, file);
+        // fseek(file, 0, SEEK_SET);
+        fclose(file);
+    } else {
+        // printf("Cannot open file\n");
+    }
+}

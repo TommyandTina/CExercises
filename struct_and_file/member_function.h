@@ -24,5 +24,7 @@ bool compare_Citizen_id(struct Member a, struct Member b);
 bool compare_name(struct Member a, struct Member b);
 void changeMemberinfo(struct Member *member, int index);
 void deleteMember(struct Member *member,int index , int amount_of_current_member);
+void save_member_to_file(struct Member *member);
+void load_member_from_file(struct Member *member);
 
 #endif

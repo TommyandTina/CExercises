@@ -22,6 +22,8 @@ int find_in_books(struct Book book[], int size, bool (*compare)(struct Book, str
 int writeToBook(struct Book *book,struct CurrentIndex *currentIdx);
 int changeBookinfo(struct Book *book, int index);
 void deleteBook(struct Book *book,int index , int amount_of_current_book);
+void save_book_to_file(struct Book *book);
+void load_book_from_file(struct Book *book);
 // void book_management(struct Book *book, struct CurrentIndex *currentIdx);
 
 

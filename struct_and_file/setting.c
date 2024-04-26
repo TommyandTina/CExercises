@@ -72,3 +72,24 @@ void reduceCurrentIndex(int *index) {
 void increaseCurrentIndex(int *index) {
     (*index)++;
 }
+
+void save_current_index_to_file(struct CurrentIndex *currentIdx) {
+    FILE *file = fopen("currentIdx_data.bin", "wb");
+    if (file != NULL) {
+        fwrite(currentIdx, sizeof(struct CurrentIndex), 1, file);
+        fclose(file);
+    } else {
+        printf("Cannot open file\n");
+    }
+}
+
+void load_current_index_from_file(struct CurrentIndex *currentIdx) {
+    FILE *file = fopen("currentIdx_data.bin", "rb");
+    if (file != NULL) {
+        fread(currentIdx, sizeof(struct CurrentIndex), 1, file);
+        // fseek(file, 0, SEEK_SET);
+        fclose(file);
+    } else {
+        // printf("Cannot open file\n");
+    }
+}

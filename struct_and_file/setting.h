@@ -32,6 +32,8 @@ int countDays(int day, int month, int year);
 void printDate_from_countDays(int totalDays);
 void reduceCurrentIndex(int *index);
 void increaseCurrentIndex(int *index);
+void save_current_index_to_file(struct CurrentIndex *currentIdx);
+void load_current_index_from_file(struct CurrentIndex *currentIdx);
 #endif
 
 
