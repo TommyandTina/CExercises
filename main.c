@@ -149,29 +149,15 @@ enum options {
         getchar();
         switch (input_option) {
             case START:
-            printf("Data init, choose this option again can lost all data\n");
-            // number_of_current_member_index = 0;
-            // for (int i = 0; i < MAX_MEMBERS; i++) {
-            //     member_id[i] = 0;
-            //     member_citizen_ID[i] = 0;
-            //     member_dayOfBirth[i] = 0;
-            //     member_register_date[i] = 0;
-            //     member_expired_date[i] = 0;
-            //     member_borrowed_book[i] = 0;
+            printf("Data init\n");
 
-            //     for (int j = 0; j < MAX_BOOK; j++) {
-            //         member_borrowed_ISBN[i][j] = 0;
-            //     }
-
-                
-            // }
             break;
             case MEMBER_MANAGEMENT:
                 while(1)
                 {
                     char member_name_to_search[MAX_NAME_LENGTH];  // Khai báo biến
                     int option;
-                    printf("Do you want to add, search or change a member (1-add, 2-search, 3-change, 4-watch members list,5-search by citizen_id,6-search book borrowed by name and delete ?, 7-exit) ?");
+                    printf("Do you want to add, search or change a member (1-add, 2-search and get info by name, 3-change info, 4-watch members list,5-search by citizen_id,6-search member by name and delete ?, 7-exit) ?");
                     scanf(" %d", &option);
                     getchar();
 
@@ -217,17 +203,26 @@ enum options {
                     }
                     else if(option == 2) 
                     {
-                        // getchar(); // Đọc ký tự xuống dòng sau khi nhập số
                         printf("Enter member name to search: ");
-                        // memset(member_name_to_search, 0, sizeof(member_name_to_search));  // Xoá dữ liệu biến
-                        
                         fgets(member_name_to_search, MAX_NAME_LENGTH, stdin);  // Đọc dữ liệu vào biến
                         member_name_to_search[strlen(member_name_to_search)-1] = '\0'; // Xóa kí tự newline từ fgets
 
                         int index = search_index_to_get_info_fromstr(member_name_to_search, member_name,MAX_NAME_LENGTH);
                         if(index != -1)
                         {
-                            printf("Member info:\nName: %s\nCitizen ID: %d\n", member_name[index], member_citizen_ID[index]);
+                            printf("Member id: %d\n", member_id[index]);
+                            printf("Member name: %s\n", member_name[index]);
+                            printf("Member citizen_id: %d\n", member_citizen_ID[index]);
+                            printf("Member dayOfBirth:");
+                            printDate_from_countDays(member_dayOfBirth[index]);
+                            printf("Member email: %s\n", member_email[index]);
+                            printf("Member gender: %s\n", member_gender[index]);
+                            printf("Member register_date:");
+                            printDate_from_countDays(member_register_date[index]);
+                            printf("Member borrowed_ISBN:\n");
+                            for (int j = 0; j < member_borrowed_book[index]; j++) {
+                                printf("%d\n", member_borrowed_ISBN[index][j]);
+                            }
                         }
                         else
                         {
@@ -238,8 +233,6 @@ enum options {
                     else if(option == 3)
                     {
                         printf("Enter member name to change: ");
-                        // fflush(stdout);
-                        // member_name_to_search[0] = '\0';  // Chạy đến ký tự \0 đầu tiên của chuỗi
                         fgets(member_name_to_search, MAX_NAME_LENGTH, stdin);  // Nhập tên thành viên
                         member_name_to_search[strlen(member_name_to_search)-1] = '\0';  // Loại bỏ ký tự \n
                     
@@ -253,7 +246,6 @@ enum options {
                             switch(change_option) {
                                 case 1:
                                     printf("Enter new member_id: ");
-                                    // fflush(stdout);
                                     scanf("%d", &member_id[index]);
                                     getchar();
                                     break;
@@ -359,23 +351,6 @@ enum options {
                             getchar();
                             if (delete_member == 'y' || delete_member == 'Y') {
                                 // Move elements to the right of the deleted element
-                                // free(member_borrowed_ISBN[index]);
-                            
-                            /*HANDLE 'DELETING FUNCTION' FOR 1 MEMBER*/
-                            // if (number_of_current_member_index == 1) {
-                            //     member_id[0] = -1;
-                            //     memset(member_name[0], -1, sizeof(member_name[0]));
-                            //     member_citizen_ID[0] = -1;
-                            //     member_dayOfBirth[0] = -1;
-                            //     memset(member_email[0], -1, sizeof(member_email[0]));
-                            //     memset(member_gender[0], -1, sizeof(member_gender[0]));
-                            //     member_register_date[0] = -1;
-                            //     member_expired_date[0] = -1;
-                            //     for (int i = 0; i < MAX_BOOK; i++) {
-                            //         member_borrowed_ISBN[0][i] = -1;
-                            //     }
-                            //     member_borrowed_book[0] = -1;
-                            // }
                             /*HANDLE 'DELETING FUNCTION' FOR N MEMBER*/
                                 for (int i = index; i < number_of_current_member_index ; i++) {
                                     member_id[i] = member_id[i+1];
@@ -676,9 +651,6 @@ enum options {
                             // Tăng số lượt mượn, cập nhật thông tin của member
                             member_borrowed_book[index]++;
                             lib_ticket_borrowed_book[number_of_current_ticket_index]++;
-                            // if(member_borrowed_book[index] -1 == 0) {
-                            //     member_borrowed_ISBN[index] = (int*)malloc(MAX_BOOK * sizeof(int));
-                            // }
                             member_borrowed_ISBN[index][member_borrowed_book[index]-1] = book_ISBN[book_index];
                             // Giảm số lượng sách
                             book_amount[book_index]--;
@@ -688,9 +660,6 @@ enum options {
                             lib_ticket_borrow_date[number_of_current_ticket_index] = countDays(day, month, year);
                             lib_ticket_return_date_expected[number_of_current_ticket_index] = countDays(day, month, year) + 7;
                             lib_ticket_return_date_real[number_of_current_ticket_index] = 0;
-                            // if(lib_ticket_borrowed_book[number_of_current_ticket_index] - 1 == 0) {
-                            //     lib_ticket_ISBN[number_of_current_ticket_index] = (int*)malloc(MAX_BOOK * sizeof(int));
-                            // }
                             lib_ticket_ISBN[number_of_current_ticket_index][lib_ticket_borrowed_book[number_of_current_ticket_index]-1] = book_ISBN[book_index]; // ghi ISBN vào ticket_ISBN
 
                             //add sách vào ticket
@@ -706,7 +675,6 @@ enum options {
                                     book_index = search_index_to_get_info_fromstr(input_book_name,book_name,MAX_NAME_LENGTH); // tìm ISBN
                                     if (book_index != -1) { // nếu tìm thấy sách
                                         printf("Book found\n");
-                                        // lib_ticket_ISBN[number_of_current_ticket_index] = (int*)realloc(lib_ticket_ISBN[number_of_current_ticket_index], sizeof(int) * (member_borrowed_book[index]+1)); // mở rộng ticket_ISBN
                                         lib_ticket_ISBN[number_of_current_ticket_index][lib_ticket_borrowed_book[number_of_current_ticket_index]] = book_ISBN[book_index]; // ghi ISBN vào ticket_ISBN
                                         member_borrowed_ISBN[index][member_borrowed_book[index]] = book_ISBN[book_index];// ghi vào member
                                         member_borrowed_book[index]++; // tăng số lượt mượn ở member
@@ -833,10 +801,6 @@ enum options {
                             }
                             lib_ticket_ISBN[ticket_index][lib_ticket_borrowed_book[ticket_index]-1] = -1;
                             lib_ticket_borrowed_book[ticket_index]--;  
-                            // if(lib_ticket_borrowed_book[ticket_index] == 0) {
-                            //     free(lib_ticket_ISBN[ticket_index]);
-                            //     lib_ticket_ISBN[ticket_index] = -1;
-                            // }
                         }
                         } else {
                             printf("Book not found\n");

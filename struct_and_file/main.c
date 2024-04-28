@@ -38,7 +38,7 @@ int main(){
             {
                 // char member_name_to_search[MAX_NAME_LENGTH];  // Khai báo biến
                 int option;
-                printf("Do you want to add, search or change a member (1-add, 2-search by name, 3-change info, 4-watch members list,5-search by citizen_id,6-search book borrowed by name and delete ?, 7-exit) ?");
+                printf("Do you want to add, search or change a member (1-add, 2-search and get info by name, 3-change info, 4-watch members list,5-search by citizen_id,6-search member by name and delete ?, 7-exit) ?");
                 scanf(" %d", &option);
                 getchar();
 
